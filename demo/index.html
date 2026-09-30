@@ -45,6 +45,8 @@
     }
     :root[data-theme="light"] { color-scheme: light; }
     body { background: var(--paper); }
+    .site-brand { display: inline-block; margin-bottom: 1.75rem; color: var(--ink); font-size: 1.5rem; font-weight: 600; letter-spacing: -.05em; text-decoration: none; line-height: 1; }
+    .site-brand:hover, .site-brand:focus-visible { color: var(--felt); }
     .title-row { display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem; }
     .theme-toggle { flex: none; display: grid; place-items: center; width: 2.5rem; height: 2.5rem; margin-top: .2rem; padding: 0; border: 1px solid var(--rule); background: none; color: var(--ink-soft); cursor: pointer; }
     .theme-toggle:hover, .theme-toggle:focus-visible { color: var(--felt); border-color: var(--felt); }
@@ -73,6 +75,7 @@
 </head>
 <body>
 <main>
+  <a class="site-brand" href="https://vaclis.net" aria-label="vaclis. home">vaclis.</a>
   <div class="title-row">
     <h1>midi-realplayer</h1>
     <button class="theme-toggle" id="theme-toggle" type="button" aria-label="Switch to dark theme">
