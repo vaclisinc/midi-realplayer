@@ -486,6 +486,7 @@ function bindApplication(): void {
   const resizeObserver = new ResizeObserver(() => {
     updateCanvasSize();
     renderCanvas();
+    paintAudioCovers();
   });
   resizeObserver.observe(canvasScroll);
   disposers.push(() => resizeObserver.disconnect());
@@ -781,6 +782,7 @@ function renderTrackList(): void {
     })
     .join("");
   list.scrollTop = previousScrollTop;
+  paintAudioCovers();
 
   list.querySelectorAll<HTMLButtonElement>(".track-mute").forEach((button) => {
     button.addEventListener("click", () => {
@@ -2338,6 +2340,92 @@ function drawAudioLanes(
   });
 }
 
+/**
+ * Cover art for a recording, in the spirit of the instrument photos on MIDI rows:
+ * a dark stage lit in the track's color with the recording's own waveform glowing
+ * across it, so vocals, drums and bass look different at a glance.
+ */
+function paintAudioCovers(): void {
+  for (const track of audioTracks) {
+    const canvas = app.querySelector<HTMLCanvasElement>(
+      `canvas[data-audio-art="${CSS.escape(track.id)}"]`
+    );
+    if (canvas) {
+      paintAudioCover(canvas, track);
+    }
+  }
+}
+
+function paintAudioCover(canvas: HTMLCanvasElement, track: AudioTrackModel): void {
+  const width = canvas.clientWidth;
+  const height = canvas.clientHeight;
+  if (!width || !height) {
+    return;
+  }
+  const dpr = window.devicePixelRatio || 1;
+  canvas.width = Math.round(width * dpr);
+  canvas.height = Math.round(height * dpr);
+  const context = canvas.getContext("2d");
+  if (!context) {
+    return;
+  }
+  context.setTransform(dpr, 0, 0, dpr, 0, 0);
+  const color = (alpha: number) => `rgba(${track.rgb}, ${alpha})`;
+
+  context.fillStyle = "rgb(11, 14, 19)";
+  context.fillRect(0, 0, width, height);
+  const glow = context.createRadialGradient(
+    width * 0.68, height * 0.38, 0,
+    width * 0.68, height * 0.38, width * 0.62
+  );
+  glow.addColorStop(0, color(0.34));
+  glow.addColorStop(0.55, color(0.1));
+  glow.addColorStop(1, color(0));
+  context.fillStyle = glow;
+  context.fillRect(0, 0, width, height);
+
+  const centerY = height * 0.4;
+  const reach = height * 0.3;
+  const peaks = track.peaks;
+  if (!peaks || peaks.length === 0) {
+    context.strokeStyle = color(0.45);
+    context.lineWidth = 1;
+    context.beginPath();
+    context.moveTo(0, centerY);
+    context.lineTo(width, centerY);
+    context.stroke();
+    return;
+  }
+
+  const barWidth = 2;
+  const gap = 1.5;
+  const bars = Math.max(1, Math.floor(width / (barWidth + gap)));
+  let loudest = 0;
+  for (const value of peaks) {
+    loudest = Math.max(loudest, value);
+  }
+  const bar = context.createLinearGradient(0, centerY - reach, 0, centerY + reach);
+  bar.addColorStop(0, color(0.25));
+  bar.addColorStop(0.5, color(0.95));
+  bar.addColorStop(1, color(0.25));
+  context.fillStyle = bar;
+  context.shadowColor = color(0.7);
+  context.shadowBlur = 6;
+  for (let index = 0; index < bars; index++) {
+    const from = Math.floor((index / bars) * peaks.length);
+    const to = Math.max(from + 1, Math.floor(((index + 1) / bars) * peaks.length));
+    let peak = 0;
+    for (let bin = from; bin < to; bin++) {
+      peak = Math.max(peak, peaks[bin] ?? 0);
+    }
+    // Normalized with a gentle curve so quiet stems still read as shapes.
+    const level = loudest > 0 ? Math.pow(peak / loudest, 0.7) : 0;
+    const half = Math.max(0.75, level * reach);
+    context.fillRect(index * (barWidth + gap), centerY - half, barWidth, half * 2);
+  }
+  context.shadowBlur = 0;
+}
+
 function describeAudioTrack(track: AudioTrackModel): string {
   if (track.status === "loading") {
     return "Audio · loading…";
@@ -2367,6 +2455,7 @@ function renderAudioTrackRow(
       data-solo="${track.solo}"
     >
       <span class="track-cover track-cover-audio">
+        <canvas class="track-audio-art" data-audio-art="${escapeHtml(track.id)}" aria-hidden="true"></canvas>
         <span class="track-cover-number">[A${index + 1}]</span>
         <span class="track-name" title="${escapeHtml(track.label)}">${escapeHtml(track.label)}</span>
         <span class="track-copy">

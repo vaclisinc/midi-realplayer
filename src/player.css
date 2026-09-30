@@ -229,13 +229,15 @@ select:focus-visible {
 .track-family-sound-effects { --track-rgb: 121, 139, 163; }
 
 .track-cover-audio {
-  background:
-    repeating-linear-gradient(
-      90deg,
-      rgba(var(--track-rgb), 0.16) 0 2px,
-      transparent 2px 7px
-    ),
-    linear-gradient(135deg, rgba(var(--track-rgb), 0.42), rgb(14, 18, 24) 70%);
+  background: rgb(11, 14, 19);
+}
+
+.track-audio-art {
+  position: absolute;
+  z-index: 1;
+  inset: 0;
+  width: 100%;
+  height: 100%;
 }
 
 .track-row:hover .track-cover-art {
@@ -265,7 +267,8 @@ select:focus-visible {
   min-width: 0;
   overflow: hidden;
   border: 0;
-  background: var(--surface-base);
+  /* Covers are dark artwork in both themes; this shows only while art loads. */
+  background: rgb(12, 16, 22);
   isolation: isolate;
 }
 
@@ -1059,13 +1062,13 @@ select:focus-visible {
   }
 }
 
-/* Phone-sized players keep view switching, zoom and transport; the row-height
-   slider and SoundFont menu give way. */
+/* Phone-sized players keep view switching, zoom, transport, export and the
+   SoundFont menu; the row-height slider and the Follow toggle (on by default) give way. */
 @container midi-realplayer (max-width: 30rem) {
   .track-height-control,
   .view-tools-divider,
-  .soundfont-button,
-  .soundfont-menu {
+  .transport-divider,
+  .transport-follow-toggle {
     display: none;
   }
 }
@@ -1103,9 +1106,12 @@ select:focus-visible {
     height: 4.75rem;
   }
 
+  /* A narrow rail would letterbox the 2:1 artwork; fill the row height instead. */
   .track-cover-art {
-    width: 100%;
-    height: auto;
+    left: 50%;
+    width: auto;
+    height: 100%;
+    transform: translate(-50%, -50%);
   }
 
   .track-cover-number {

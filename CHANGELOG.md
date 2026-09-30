@@ -6,6 +6,10 @@
   `theme` attribute or the visitor's system setting; it used to keep the old colors
   until the next redraw.
 - Add `redraw()` to the player returned by `mount()`.
+- Give audio tracks cover art: the recording's own waveform on a dark stage lit
+  in the track's color, instead of a plain gradient.
+- Phone-width players keep the SoundFont menu (the Follow toggle gives way) and
+  crop instrument artwork to fill each row instead of letterboxing it.
 
 ## 0.1.0
 
