@@ -1,0 +1,62 @@
+{
+  "name": "midi-realplayer",
+  "version": "0.1.0",
+  "description": "Drop-in multi-track MIDI player for web pages: a <midi-realplayer> custom element with track and piano-roll views, mute/solo mixer, SoundFont playback, and audio stems in sync.",
+  "license": "MIT",
+  "type": "module",
+  "main": "./dist/midi-realplayer.js",
+  "module": "./dist/midi-realplayer.js",
+  "exports": {
+    ".": {
+      "types": "./dist/types/esm.d.ts",
+      "default": "./dist/midi-realplayer.js"
+    },
+    "./iife": "./dist/midi-realplayer.iife.js",
+    "./dist/*": "./dist/*",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "dist"
+  ],
+  "keywords": [
+    "midi",
+    "midi-player",
+    "web-component",
+    "custom-element",
+    "piano-roll",
+    "soundfont",
+    "sf2",
+    "stems",
+    "daw",
+    "music",
+    "listening-test",
+    "music-transcription"
+  ],
+  "scripts": {
+    "clean": "node scripts/clean.mjs",
+    "build": "node scripts/build.mjs && tsc -p tsconfig.types.json",
+    "typecheck": "tsc --noEmit",
+    "test": "node --experimental-strip-types --test tests/*.test.mjs",
+    "make-sf3": "node scripts/make-sf3.mjs",
+    "prepack": "npm run build"
+  },
+  "devDependencies": {
+    "spessasynth_core": "^4.3.15",
+    "spessasynth_lib": "^4.3.11",
+    "esbuild": "^0.25.5",
+    "typescript": "^5.8.3"
+  },
+  "types": "./dist/types/esm.d.ts",
+  "jsdelivr": "./dist/midi-realplayer.js",
+  "unpkg": "./dist/midi-realplayer.js",
+  "sideEffects": true,
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/vaclisinc/midi-realplayer-web.git"
+  },
+  "homepage": "https://vaclisinc.github.io/midi-realplayer-web/",
+  "bugs": {
+    "url": "https://github.com/vaclisinc/midi-realplayer-web/issues"
+  },
+  "author": "Song-Ze (Jimmy) Yu"
+}

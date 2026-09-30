@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>midi-realplayer · demo</title>
+  <meta name="description" content="A drop-in MIDI player for the web: DAW-style track view, piano roll, mute/solo mixer, SoundFont playback, and audio stems in sync.">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600&display=swap">
+  <!-- The demo loads the build next to it; on your page use the CDN tag shown below. -->
+  <script type="module" src="../dist/midi-realplayer.js"></script>
+  <style>
+    :root {
+      --paper: #ffffff;
+      --paper-sunk: #f5f4f2;
+      --ink: #1d1a17;
+      --ink-soft: #48423c;
+      --muted: #6e675f;
+      --rule: #dedad4;
+      --felt: #2b4f8f;
+      --sans: "Hanken Grotesk", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      --mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+      color-scheme: light;
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--paper); color: var(--ink); font: 1rem/1.65 var(--sans); -webkit-font-smoothing: antialiased; }
+    main { width: min(100% - 2 * clamp(1rem, 4vw, 2.5rem), 66rem); margin-inline: auto; padding-block: clamp(2rem, 5vw, 3.5rem) 4rem; }
+    h1 { margin: 0 0 .5rem; font-size: clamp(1.9rem, 4vw, 2.6rem); font-weight: 600; line-height: 1.05; letter-spacing: -.015em; }
+    .lede { margin: 0 0 1rem; max-width: 44rem; color: var(--ink-soft); }
+    .links { display: flex; flex-wrap: wrap; gap: .4rem .6rem; margin: 0 0 1.25rem; font-size: .875rem; }
+    .links a { padding: .1rem .55rem; border: 1px solid var(--rule); color: var(--ink-soft); font-weight: 600; text-decoration: none; }
+    .links a:hover, .links a:focus-visible { border-color: var(--felt); color: var(--felt); }
+    a { color: var(--felt); }
+    code { font-family: var(--mono); font-size: .85em; }
+    pre { margin: 0; padding: .9rem 1rem; background: var(--paper-sunk); border: 1px solid var(--rule); overflow-x: auto; font: .8125rem/1.6 var(--mono); }
+    .case { padding-block: 2rem; border-top: 1px solid var(--rule); display: grid; gap: .9rem; }
+    .case-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: .25rem 1rem; }
+    .case h2 { margin: 0; font-size: 1.25rem; font-weight: 600; letter-spacing: -.01em; }
+    .tag { font-size: .72rem; font-weight: 600; letter-spacing: .14em; text-transform: uppercase; color: var(--felt); }
+    .case p { margin: 0; max-width: 46rem; color: var(--ink-soft); }
+    midi-realplayer { border: 1px solid var(--rule); }
+    footer { margin-top: 2rem; padding-top: 1.25rem; border-top: 1px solid var(--rule); font-size: .8125rem; color: var(--muted); }
+    footer p { margin: 0 0 .4rem; max-width: 52rem; }
+  </style>
+</head>
+<body>
+<main>
+  <h1>midi-realplayer</h1>
+  <p class="lede">A drop-in MIDI player for the web. One tag gives a MIDI file a DAW-style track view, a piano roll, a mute/solo mixer, and SoundFont sound. Audio recordings, such as the stems a transcription came from, play in step as extra tracks.</p>
+  <p class="links">
+    <a href="https://github.com/vaclisinc/midi-realplayer-web">GitHub</a>
+    <a href="https://www.npmjs.com/package/midi-realplayer">npm</a>
+    <a href="https://github.com/vaclisinc/midi-realplayer-web#readme">Documentation</a>
+  </p>
+  <pre>&lt;script type="module" src="https://cdn.jsdelivr.net/npm/midi-realplayer"&gt;&lt;/script&gt;
+&lt;midi-realplayer src="song.mid"&gt;&lt;/midi-realplayer&gt;</pre>
+
+  <section class="case" aria-labelledby="case-single">
+    <div class="case-head"><span class="tag">One track</span><h2 id="case-single">A transcribed bass line</h2></div>
+    <p>A single track gets the same interface; the player's height fits its tracks.</p>
+    <pre>&lt;midi-realplayer src="bass.mid"&gt;&lt;/midi-realplayer&gt;</pre>
+    <midi-realplayer src="bass.mid"></midi-realplayer>
+  </section>
+
+  <section class="case" aria-labelledby="case-multi">
+    <div class="case-head"><span class="tag">Many tracks</span><h2 id="case-multi">A five-track transcription</h2></div>
+    <p>Tracks view by default; switch to Roll at the top right. Each track has mute, solo, volume and a SoundFont instrument menu. Space plays and pauses, clicking the canvas seeks, and Ctrl/⌘ + wheel zooms.</p>
+    <pre>&lt;midi-realplayer src="muscriptor.mid"&gt;&lt;/midi-realplayer&gt;</pre>
+    <midi-realplayer src="muscriptor.mid"></midi-realplayer>
+  </section>
+
+  <section class="case" aria-labelledby="case-stems">
+    <div class="case-head"><span class="tag">MIDI + audio</span><h2 id="case-stems">Transcription next to the mix and its stems</h2></div>
+    <p>Recordings sit above the MIDI tracks with their waveforms and share the MIDI's audio clock. Solo "Bass stem" and "Bass" to hear how well the bass was transcribed; mute every MIDI track to hear only the recordings.</p>
+    <pre>&lt;midi-realplayer src="muscriptor.mid"&gt;
+  &lt;midi-realplayer-audio src="audio/mix.mp3" label="Mixture"&gt;&lt;/midi-realplayer-audio&gt;
+  &lt;midi-realplayer-audio src="audio/vocals.mp3" label="Vocals stem"&gt;&lt;/midi-realplayer-audio&gt;
+  &lt;midi-realplayer-audio src="audio/piano.mp3" label="Piano stem"&gt;&lt;/midi-realplayer-audio&gt;
+  &lt;midi-realplayer-audio src="audio/guitar.mp3" label="Guitar stem"&gt;&lt;/midi-realplayer-audio&gt;
+  &lt;midi-realplayer-audio src="audio/bass.mp3" label="Bass stem"&gt;&lt;/midi-realplayer-audio&gt;
+  &lt;midi-realplayer-audio src="audio/drums.mp3" label="Drums stem"&gt;&lt;/midi-realplayer-audio&gt;
+&lt;/midi-realplayer&gt;</pre>
+    <midi-realplayer id="stems" src="muscriptor.mid">
+      <midi-realplayer-audio src="audio/mix.mp3" label="Mixture"></midi-realplayer-audio>
+      <midi-realplayer-audio src="audio/vocals.mp3" label="Vocals stem"></midi-realplayer-audio>
+      <midi-realplayer-audio src="audio/piano.mp3" label="Piano stem"></midi-realplayer-audio>
+      <midi-realplayer-audio src="audio/guitar.mp3" label="Guitar stem"></midi-realplayer-audio>
+      <midi-realplayer-audio src="audio/bass.mp3" label="Bass stem"></midi-realplayer-audio>
+      <midi-realplayer-audio src="audio/drums.mp3" label="Drums stem"></midi-realplayer-audio>
+    </midi-realplayer>
+  </section>
+
+  <footer>
+    <p>Only one player on a page sounds at a time: starting one pauses the others. The SoundFont (GeneralUser GS) downloads on first play.</p>
+    <p>Example: a 20-second excerpt of "The Lost Mondays, Volume I" by The Georgia Sam Blues Band (<a href="https://archive.org/details/Georgia_Sam_The_Lost_Mondays_v1">Internet Archive</a>, <a href="https://creativecommons.org/licenses/by-nc-sa/2.5/">CC BY-NC-SA 2.5</a>). Stems were separated with BS-RoFormer and each stem transcribed with MuScriptor; both are model output, not hand annotation.</p>
+  </footer>
+</main>
+</body>
+</html>
