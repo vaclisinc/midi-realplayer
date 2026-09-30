@@ -167,6 +167,10 @@ npm run build     # writes dist/
 npx http-server . # then open /demo/
 ```
 
+The demo loads the published `midi-realplayer@0.1.3` package from jsDelivr,
+including its SoundFont and worklet. It does not load the local `dist/` build.
+To try local changes, change the demo's script URL to `../dist/midi-realplayer.js`.
+
 ## Publishing
 
 GitHub releases tagged `v<version>` publish to npm. Update the package version,

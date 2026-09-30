@@ -22,16 +22,10 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 22
-          cache: npm
-      - run: npm ci
-      - run: npm run build
-      # The demo loads ../dist/, so the site keeps the repository layout.
+      # The demo uses the published npm package via jsDelivr, including its assets.
       - run: |
           mkdir -p _site
-          cp -r demo dist _site/
+          cp -r demo _site/
           printf '<!doctype html><meta http-equiv="refresh" content="0; url=demo/"><link rel="canonical" href="demo/">' > _site/index.html
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
