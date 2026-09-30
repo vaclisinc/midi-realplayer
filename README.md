@@ -219,6 +219,18 @@ npx http-server . # then open /demo/
 The player started as the webview of the
 [MIDI RealPlayer VS Code extension](https://github.com/vaclisinc/midi-realplayer-vscode).
 
+## Publishing
+
+GitHub releases publish to npm through `.github/workflows/publish.yml` using
+OIDC. Configure the npm Trusted Publisher for `vaclisinc/midi-realplayer-web`,
+workflow `publish.yml`, no environment name, and allow `npm publish`.
+No npm token is needed.
+
+For a new version, update `package.json`, `package-lock.json` and the changelog,
+then create a GitHub release tagged `v<version>`. The workflow checks that the
+tag matches the package version before testing, building and publishing.
+You can also run the workflow manually for a release tag; it defaults to a dry run.
+
 ## License
 
 MIT. SpessaSynth is Apache-2.0. GeneralUser GS and JetBrains Mono (OFL)
