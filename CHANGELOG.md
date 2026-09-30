@@ -9,9 +9,12 @@
 - Give audio tracks cover art: the recording's own waveform on a dark stage lit
   in the track's color, instead of a plain gradient.
 - Narrow and phone-width players keep every control, including the per-track
-  instrument menu and the SoundFont menu, and shrink them instead of hiding them;
-  on phones the transport takes two lines. Instrument artwork fills each row
-  instead of letterboxing.
+  instrument menu, and shrink them instead of hiding them; the transport stays on
+  one line. Instrument artwork fills each row instead of letterboxing.
+- The SoundFont menu is off by default: the page's author picks the bank with
+  `soundfont`. Add `soundfont-menu` (or `soundFontMenu: true` in `mount()`) to let
+  visitors load their own. This replaces `no-custom-soundfont` / `customSoundFont`,
+  which no longer have an effect.
 - The track list and canvas stop at their ends instead of rubber-banding or
   scrolling the page.
 

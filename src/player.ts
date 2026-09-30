@@ -475,8 +475,12 @@ function renderApplication(): void {
   viewHeightSlider = requireElement("#view-height");
   exportButton = requireElement("#export-audio");
   exportButton.hidden = !host.beginAudioExport;
+  // The SoundFont menu exists only when the host can switch banks; otherwise the
+  // page's author has chosen the bank and the control would be noise.
   if (!host.requestSoundFont) {
-    customSoundFontOption.hidden = true;
+    soundFontButton.hidden = true;
+    soundFontMenu.hidden = true;
+    requireElement<HTMLElement>(".transport").dataset.soundfontMenu = "off";
   }
   updateViewMode();
   renderTrackList();
@@ -970,7 +974,10 @@ async function loadSoundFont(uri: string, label: string): Promise<boolean> {
     loadedSoundBank = undefined;
     const message =
       error instanceof Error ? error.message : "The SoundFont could not be loaded.";
-    setSoundFontState("error", `${message} Choose another SF2, SF3, or DLS file.`);
+    setSoundFontState(
+      "error",
+      host.requestSoundFont ? `${message} Choose another SF2, SF3, or DLS file.` : message
+    );
     return false;
   }
 }
@@ -1390,7 +1397,9 @@ async function ensureSoundFontReady(): Promise<boolean> {
   }
   if (soundFontState === "error") {
     showStatus(
-      "The default SoundFont could not be loaded. Choose Custom in the SoundFont menu to use another bank."
+      host.requestSoundFont
+        ? "The default SoundFont could not be loaded. Choose Custom in the SoundFont menu to use another bank."
+        : "The SoundFont could not be loaded. Check the network connection and try again."
     );
   } else {
     showStatus("The bundled SoundFont is still being prepared.");

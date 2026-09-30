@@ -32,8 +32,8 @@ export type MountOptions = {
   persistKey?: string;
   /** Show the Export WAV button (downloads a file). Default true. */
   wavExport?: boolean;
-  /** Let viewers load their own SoundFont file. Default true. */
-  customSoundFont?: boolean;
+  /** Show the SoundFont menu so visitors can load their own bank. Default false. */
+  soundFontMenu?: boolean;
   /** Initial view: "arrangement" (tracks, the default) or "piano-roll". */
   viewMode?: "piano-roll" | "arrangement";
   /** Recordings (mix, stems) that play in step with the MIDI as extra mixer rows. */
@@ -160,7 +160,7 @@ export function mount(target: HTMLElement, options: MountOptions): MidiRealPlaye
       loadState: () => readStorage(options.persistKey),
       saveState: (state) => writeStorage(options.persistKey, state),
       requestSoundFont:
-        options.customSoundFont === false
+        options.soundFontMenu !== true
           ? undefined
           : (kind) => {
               if (kind === "default") {
@@ -334,7 +334,7 @@ const OBSERVED = [
   "view-mode",
   "preload",
   "no-export",
-  "no-custom-soundfont",
+  "soundfont-menu",
   "no-exclusive",
   "asset-base"
 ] as const;
@@ -459,7 +459,7 @@ export class MidiRealPlayerElement extends HTMLElement {
         viewMode === "arrangement" || viewMode === "piano-roll" ? viewMode : undefined,
       preloadSoundFont: this.hasAttribute("preload"),
       wavExport: !this.hasAttribute("no-export"),
-      customSoundFont: !this.hasAttribute("no-custom-soundfont"),
+      soundFontMenu: this.hasAttribute("soundfont-menu"),
       exclusive: !this.hasAttribute("no-exclusive"),
       assetBase: this.getAttribute("asset-base") ?? undefined,
       audioTracks: this.#audioTracks()

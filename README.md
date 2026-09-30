@@ -102,7 +102,7 @@ That is fine for clips and songs, not for hour-long files.
 | `asset-base` | folder holding the player's assets; see [Self-hosting](#self-hosting) |
 | `audio`, `audio-label`, `audio-offset` | one recording without a child element |
 | `no-export` | hide the Export WAV button |
-| `no-custom-soundfont` | hide the option to load a SoundFont from disk |
+| `soundfont-menu` | show a SoundFont menu so visitors can load their own bank |
 | `no-exclusive` | keep playing when another player on the page starts |
 
 The player's height fits its tracks (between 14 and 32 rem). Set a height in
@@ -152,7 +152,8 @@ is typed as the player element.
 The default SoundFont is [GeneralUser GS](https://schristiancollins.com/generaluser.php)
 by S. Christian Collins, compressed to SF3 (8.4 MB). It downloads on the
 first play and is shared by every player on the page. Use `soundfont` to pick
-another bank; visitors can also load their own from the SoundFont menu.
+another bank, and add `soundfont-menu` if visitors should be able to load their
+own. Each track's instrument menu works with whichever bank is loaded.
 
 ### Self-hosting
 
