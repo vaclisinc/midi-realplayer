@@ -11,7 +11,7 @@ recordings, right in the browser.
 
 **[Try the live demo](https://vaclisinc.github.io/midi-realplayer-web/)**
 
-![Five-track MIDI player with modern instrument artwork, notes, and mute, solo and volume controls](docs/screenshot.png)
+![Five-track MIDI player with modern instrument artwork, notes, and mute, solo and volume controls](docs/player-modern-five-tracks.png)
 
 Add these two lines to your page:
 
