@@ -10,7 +10,8 @@
   in the track's color, instead of a plain gradient.
 - Narrow and phone-width players keep every control, including the per-track
   instrument menu, and shrink them instead of hiding them; the transport stays on
-  one line. Instrument artwork fills each row instead of letterboxing.
+  one line, and every label, including the canvas's ruler and key labels, uses one
+  type size. Instrument artwork fills each row instead of letterboxing.
 - The SoundFont menu is off by default: the page's author picks the bank with
   `soundfont`. Add `soundfont-menu` (or `soundFontMenu: true` in `mount()`) to let
   visitors load their own. This replaces `no-custom-soundfont` / `customSoundFont`,

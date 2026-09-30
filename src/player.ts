@@ -229,6 +229,7 @@ let pianoRollRowHeight =
   savedViewerState.pianoRollRowHeight ?? DEFAULT_PIANO_ROLL_ROW_HEIGHT;
 let exportingAudio = false;
 let destroyed = false;
+let canvasLabelSize = "10px";
 const disposers: Array<() => void> = [];
 const audioTracks: AudioTrackModel[] = (config.audioTracks ?? []).map(
   (source, index): AudioTrackModel => {
@@ -1855,6 +1856,12 @@ function renderCanvas(): void {
   const pianoKeyLabel = styles.getPropertyValue("--piano-key-label").trim();
   const interfaceFont =
     styles.getPropertyValue("--interface-font").trim() || "monospace";
+  // Canvas labels follow the player's type size, which shrinks on narrow players.
+  // Container queries style .app-shell, not #app, so read it there.
+  const shell = app.querySelector<HTMLElement>(".app-shell");
+  canvasLabelSize =
+    (shell && getComputedStyle(shell).getPropertyValue("--canvas-label-size").trim()) ||
+    "10px";
   const width = bounds.width;
   const height = bounds.height;
   if (viewMode === "arrangement") {
@@ -1906,7 +1913,7 @@ function renderCanvas(): void {
     context.globalAlpha = 1;
     if (pitchClass === 0 && rowHeight >= 5) {
       context.fillStyle = pianoKeyLabel;
-      context.font = `10px ${interfaceFont}`;
+      context.font = `${canvasLabelSize} ${interfaceFont}`;
       context.textBaseline = "middle";
       context.fillText(`C${Math.floor(pitch / 12) - 1}`, 4, y + rowHeight / 2);
     }
@@ -2561,7 +2568,7 @@ function drawMusicalRuler(
   );
   const endTick =
     midiDocument.original.secondsToMIDITicks(viewEnd) + tickStep;
-  context.font = `10px ${interfaceFont}`;
+  context.font = `${canvasLabelSize} ${interfaceFont}`;
   context.textBaseline = "middle";
   let lastGridX = -Infinity;
   let lastLabelX = -Infinity;
