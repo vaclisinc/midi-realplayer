@@ -21,9 +21,9 @@
       --mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
       color-scheme: light dark;
     }
-    /* Follow the visitor's system setting; the players do the same on their own. */
+    /* Follows the system setting until the visitor picks a theme with the toggle. */
     @media (prefers-color-scheme: dark) {
-      :root {
+      :root:not([data-theme="light"]) {
         --paper: #141311;
         --paper-sunk: #1d1c19;
         --ink: #ece8e2;
@@ -33,6 +33,24 @@
         --felt: #8fb0ec;
       }
     }
+    :root[data-theme="dark"] {
+      --paper: #141311;
+      --paper-sunk: #1d1c19;
+      --ink: #ece8e2;
+      --ink-soft: #c9c3bb;
+      --muted: #9a938a;
+      --rule: #34312d;
+      --felt: #8fb0ec;
+      color-scheme: dark;
+    }
+    :root[data-theme="light"] { color-scheme: light; }
+    body { background: var(--paper); }
+    .title-row { display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem; }
+    .theme-toggle { flex: none; display: grid; place-items: center; width: 2.5rem; height: 2.5rem; margin-top: .2rem; padding: 0; border: 1px solid var(--rule); background: none; color: var(--ink-soft); cursor: pointer; }
+    .theme-toggle:hover, .theme-toggle:focus-visible { color: var(--felt); border-color: var(--felt); }
+    .theme-toggle svg { width: 1.1rem; height: 1.1rem; fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; }
+    .theme-toggle .icon-sun, :root[data-effective-theme="dark"] .theme-toggle .icon-moon { display: none; }
+    :root[data-effective-theme="dark"] .theme-toggle .icon-sun { display: block; }
     * { box-sizing: border-box; }
     body { margin: 0; background: var(--paper); color: var(--ink); font: 1rem/1.65 var(--sans); -webkit-font-smoothing: antialiased; }
     main { width: min(100% - 2 * clamp(1rem, 4vw, 2.5rem), 66rem); margin-inline: auto; padding-block: clamp(2rem, 5vw, 3.5rem) 4rem; }
@@ -56,7 +74,13 @@
 </head>
 <body>
 <main>
-  <h1>midi-realplayer</h1>
+  <div class="title-row">
+    <h1>midi-realplayer</h1>
+    <button class="theme-toggle" id="theme-toggle" type="button" aria-label="Switch to dark theme">
+      <svg class="icon-moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20.5 15.2A8.5 8.5 0 0 1 8.8 3.5 8.5 8.5 0 1 0 20.5 15.2Z"/></svg>
+      <svg class="icon-sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.42 1.42M17.65 17.65l1.42 1.42M2 12h2M20 12h2M4.93 19.07l1.42-1.42M17.65 6.35l1.42-1.42"/></svg>
+    </button>
+  </div>
   <p class="lede">A drop-in MIDI player for the web. One tag gives a MIDI file a DAW-style track view, a piano roll, a mute/solo mixer, and SoundFont sound. Audio recordings, such as the stems a transcription came from, play in step as extra tracks.</p>
   <p class="links">
     <a href="https://github.com/vaclisinc/midi-realplayer-web">GitHub</a>
@@ -106,5 +130,30 @@
     <p>Example: a 20-second excerpt of "The Lost Mondays, Volume I" by The Georgia Sam Blues Band (<a href="https://archive.org/details/Georgia_Sam_The_Lost_Mondays_v1">Internet Archive</a>, <a href="https://creativecommons.org/licenses/by-nc-sa/2.5/">CC BY-NC-SA 2.5</a>). Stems were separated with BS-RoFormer and each stem transcribed with MuScriptor; both are model output, not hand annotation.</p>
   </footer>
 </main>
+<script>
+  // Theme: system setting by default; the toggle stores an explicit choice and passes
+  // it to every player through their `theme` attribute.
+  const root = document.documentElement;
+  const toggle = document.getElementById("theme-toggle");
+  const systemDark = matchMedia("(prefers-color-scheme: dark)");
+  const effective = () => root.dataset.theme || (systemDark.matches ? "dark" : "light");
+  function apply(choice) {
+    if (choice) root.dataset.theme = choice; else delete root.dataset.theme;
+    for (const player of document.querySelectorAll("midi-realplayer")) {
+      if (choice) player.setAttribute("theme", choice); else player.removeAttribute("theme");
+    }
+    root.dataset.effectiveTheme = effective();
+    toggle.setAttribute("aria-label", `Switch to ${effective() === "dark" ? "light" : "dark"} theme`);
+  }
+  let saved = null;
+  try { saved = localStorage.getItem("midi-realplayer-demo-theme"); } catch {}
+  apply(saved === "light" || saved === "dark" ? saved : null);
+  systemDark.addEventListener("change", () => apply(root.dataset.theme || null));
+  toggle.addEventListener("click", () => {
+    const next = effective() === "dark" ? "light" : "dark";
+    apply(next);
+    try { localStorage.setItem("midi-realplayer-demo-theme", next); } catch {}
+  });
+</script>
 </body>
 </html>
