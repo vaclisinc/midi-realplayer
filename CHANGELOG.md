@@ -1,9 +1,8 @@
 # Changelog
 
-## Unreleased
+## 0.1.2
 
 - Refresh the MIDI instrument artwork with a modern studio illustration set.
-
 - Place audio recordings next to their MIDI parts with `before-midi-track`
   (or `beforeMidiTrack` in `mount()`), using 1-based MIDI track numbers.
 - The demo pairs each stem with its MIDI track and uses piano for the single-track example.

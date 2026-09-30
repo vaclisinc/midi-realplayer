@@ -16,7 +16,7 @@ recordings, right in the browser.
 Add these two lines to your page:
 
 ```html
-<script type="module" src="https://cdn.jsdelivr.net/npm/midi-realplayer@0.1.1"></script>
+<script type="module" src="https://cdn.jsdelivr.net/npm/midi-realplayer@0.1.2"></script>
 
 <midi-realplayer src="song.mid"></midi-realplayer>
 ```
@@ -48,7 +48,7 @@ those of your page.
 ### From a CDN
 
 ```html
-<script type="module" src="https://cdn.jsdelivr.net/npm/midi-realplayer@0.1.1"></script>
+<script type="module" src="https://cdn.jsdelivr.net/npm/midi-realplayer@0.1.2"></script>
 ```
 
 The examples use a fixed version so future updates do not change your page.
@@ -56,7 +56,7 @@ If you prefer a classic script tag, use this version; it exposes a
 `MidiRealPlayer` global:
 
 ```html
-<script src="https://cdn.jsdelivr.net/npm/midi-realplayer@0.1.1/dist/midi-realplayer.iife.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/midi-realplayer@0.1.2/dist/midi-realplayer.iife.js"></script>
 ```
 
 ### From npm
@@ -76,7 +76,7 @@ same version on jsDelivr. To serve them yourself, see
 
 ### Audio tracks
 
-In the repository build (not yet in npm 0.1.1), add `before-midi-track="1"` to an audio child to place it above the first MIDI
+Add `before-midi-track="1"` to an audio child to place it above the first MIDI
 track, `"2"` for the second, and so on. This lets you alternate each recording
 with its MIDI part. In `mount()`, use `beforeMidiTrack` on an audio track.
 Without this option, recordings appear above all MIDI tracks.

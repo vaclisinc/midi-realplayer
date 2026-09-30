@@ -1,6 +1,6 @@
 {
   "name": "midi-realplayer",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Drop-in multi-track MIDI player for web pages: a <midi-realplayer> custom element with track and piano-roll views, mute/solo mixer, SoundFont playback, and audio stems in sync.",
   "license": "MIT",
   "type": "module",
