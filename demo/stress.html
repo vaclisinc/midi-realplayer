@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="100 個 midi-realplayer 的手機壓力測試：播放切換、引擎保留與回收。">
+  <title>100 Players · MIDI 壓力測試</title>
+  <style>
+    :root { color-scheme: light dark; font-family: system-ui, sans-serif; background: light-dark(#f6f5f1, #171917); color: light-dark(#202720, #e3e9e3); }
+    * { box-sizing: border-box; }
+    body { margin: 0; }
+    main, .controls-inner { width: min(100% - 28px, 1000px); margin-inline: auto; }
+    header { padding: 32px 0 18px; }
+    a { color: light-dark(#305e40, #a5d6ad); }
+    h1 { margin: 12px 0; font-size: clamp(1.8rem, 5vw, 3rem); letter-spacing: -.04em; }
+    p { line-height: 1.6; }
+    .muted { color: light-dark(#586158, #a7b2a7); font-size: .9rem; }
+    .controls { position: sticky; top: 0; z-index: 10; padding: 12px 0; background: light-dark(#f6f5f1, #171917); border-block: 1px solid light-dark(#c9d0c9, #394339); }
+    .stats, .actions { display: flex; flex-wrap: wrap; gap: 8px 18px; align-items: center; }
+    .stats { font-size: .85rem; margin-bottom: 10px; }
+    .stats strong { font-variant-numeric: tabular-nums; }
+    .actions { gap: 8px; }
+    button { min-height: 44px; padding: 9px 14px; border: 1px solid light-dark(#adb9ad, #617061); border-radius: 6px; font: inherit; color: inherit; background: light-dark(#fff, #252d25); cursor: pointer; }
+    button.primary { color: #fff; background: #345d40; border-color: #345d40; }
+    button:disabled { opacity: .5; cursor: wait; }
+    button:focus-visible, a:focus-visible { outline: 3px solid #c8902d; outline-offset: 3px; }
+    #status { margin: 8px 0 0; font-size: .85rem; line-height: 1.5; }
+    #players { padding-block: 12px 36px; }
+    article { margin: 20px 0 36px; scroll-margin-top: 220px; }
+    h2 { font-size: 1rem; font-weight: 500; display: flex; gap: 12px; align-items: baseline; }
+    h2 span { font-variant-numeric: tabular-nums; color: light-dark(#305e40, #a5d6ad); }
+    midi-realplayer { border: 1px solid light-dark(#c9d0c9, #394339); border-radius: 8px; overflow: hidden; }
+    details { margin-block: 14px; line-height: 1.6; }
+    summary { cursor: pointer; }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <a href="./">← 回到一般 demo</a>
+      <h1>一頁，100 個 player。</h1>
+      <p>100 個全部掛載、不做延遲顯示。用現有的三首 MIDI 輪流排列，測試滑動、切換和續播。這一頁不載入音訊 stems。</p>
+      <details>
+        <summary>怎麼測？</summary>
+        <ol>
+          <li>等待 100 個就緒，先上下滑動，觀察畫面是否順暢。</li>
+          <li>點「播放下一個」，每次聽幾秒再切換；也能直接操作下方任一 player。</li>
+          <li>連續切換至少 10 個，再回到最近的 player，比較續播與重建的等待。</li>
+          <li>通常會留下 1 個播放中＋3 個閒置 AudioContext；切換途中可能短暫更多。「全部暫停」後應最多剩 3 個。</li>
+          <li>點「移除全部」，AudioContext 應降到 0；再點「重建 100 個」重測。</li>
+        </ol>
+        <p class="muted">AudioContext 數量由這個測試頁觀測，不是記憶體容量。下方若顯示 JS heap，也不包含完整音訊／GPU 記憶體。播放耗時是 play() 完成的時間，不是實際第一個聲音的延遲。請保持頁面在前景。</p>
+      </details>
+    </header>
+  </main>
+  <section class="controls" aria-label="測試控制">
+    <div class="controls-inner">
+      <div class="stats">
+        <span>就緒 <strong id="ready">0 / 100</strong></span>
+        <span>播過 <strong id="visited">0</strong></span>
+        <span>AudioContext <strong id="contexts">0</strong></span>
+        <span>累計建立 <strong id="created">0</strong></span>
+        <span>最近播放請求 <strong id="latency">—</strong></span>
+        <span id="heap" hidden></span>
+      </div>
+      <div class="actions">
+        <button id="previous" disabled>播放上一個</button>
+        <button id="next" class="primary" disabled>播放下一個</button>
+        <button id="pause" disabled>全部暫停</button>
+        <button id="remove" disabled>移除全部</button>
+        <button id="rebuild" disabled>重建 100 個</button>
+      </div>
+      <p id="status" role="status">正在載入測試版本…</p>
+    </div>
+  </section>
+  <main>
+    <div id="players"></div>
+    <p class="muted">範例音樂來源與授權資訊見<a href="./">一般 demo</a>。本頁使用旁邊的 dist build，並非 npm 上的舊版本。</p>
+  </main>
+  <script type="module" src="./stress.js"></script>
+</body>
+</html>

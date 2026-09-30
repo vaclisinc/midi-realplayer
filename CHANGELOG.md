@@ -1,5 +1,18 @@
 # Changelog
 
+## 0.1.3
+
+- Retain the three most recently used idle audio engines without a timeout,
+  releasing the oldest when another becomes idle. Active engines are kept.
+  Recreate evicted engines on demand while preserving transport position and
+  mixer settings.
+- Stop animation loops while idle and release unused SoundFont cache entries on
+  player destruction or custom bank replacement.
+- Guard asynchronous engine initialization against destruction and superseded
+  loads; pause and stop now cancel a pending play request.
+
+- Add a 100-player demo stress test with live AudioContext counts and teardown controls.
+
 ## 0.1.2
 
 - Refresh the MIDI instrument artwork with a modern studio illustration set.

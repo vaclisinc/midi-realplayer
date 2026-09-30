@@ -16,13 +16,43 @@ recordings, right in the browser.
 Add these two lines to your page:
 
 ```html
-<script type="module" src="https://cdn.jsdelivr.net/npm/midi-realplayer@0.1.2"></script>
+<script type="module" src="https://cdn.jsdelivr.net/npm/midi-realplayer@0.1.3"></script>
 
 <midi-realplayer src="song.mid"></midi-realplayer>
 ```
 
 No build step is needed. The player includes a default set of instrument sounds,
 so you do not need to supply a SoundFont to get started.
+
+## Many players on one page
+
+By default, mounting a player does not create an audio engine. The engine is
+created on first play (or WAV export), and SoundFont downloads are shared between
+players using the same URL. Playback is exclusive by default.
+
+After pause, stop, or the end of a song, the three most recently used idle engines
+are kept ready per library instance, with no time limit. When a fourth engine
+becomes idle, the least recently used idle engine is released. Resuming a retained
+player reuses its engine; resuming an evicted player rebuilds the engine and
+restores the position and mixer settings, which can take longer. Active playback,
+sequence rebuilds, and WAV exports are not evicted and do not count toward the
+three idle engines. Paused players do not run an
+animation loop. Removing a custom element, or calling `destroy()` on a mounted
+player, releases its engine; cached SoundFont bytes are removed when their last
+mounted user is destroyed.
+
+This bounds idle engine retention, not total page memory: MIDI data, DOM/canvas
+content, and decoded audio stems remain per player. `preload` can initialize many
+engines at once, and `no-exclusive` allows multiple active engines. For large
+collections, mount players as needed and destroy those no longer needed. There
+is no fixed guarantee that any set of 100 files will fit in memory.
+
+For a phone smoke test, open `demo/stress.html` from the built demo site over
+HTTPS (desktop testing also works on localhost). It mounts 100 MIDI-only players
+at once and shows live AudioContext counts, distinct players played, and the last
+play request duration. Use Next/Previous to switch, Pause All to check idle
+retention, and Remove All to check teardown. AudioContext counts and the optional
+JS heap reading are diagnostics, not a measurement of total browser memory.
 
 ## What you can do
 
@@ -48,7 +78,7 @@ those of your page.
 ### From a CDN
 
 ```html
-<script type="module" src="https://cdn.jsdelivr.net/npm/midi-realplayer@0.1.2"></script>
+<script type="module" src="https://cdn.jsdelivr.net/npm/midi-realplayer@0.1.3"></script>
 ```
 
 The examples use a fixed version so future updates do not change your page.
@@ -56,7 +86,7 @@ If you prefer a classic script tag, use this version; it exposes a
 `MidiRealPlayer` global:
 
 ```html
-<script src="https://cdn.jsdelivr.net/npm/midi-realplayer@0.1.2/dist/midi-realplayer.iife.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/midi-realplayer@0.1.3/dist/midi-realplayer.iife.js"></script>
 ```
 
 ### From npm

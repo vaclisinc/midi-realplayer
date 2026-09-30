@@ -87,6 +87,21 @@ const webStyles = `
 let defaultAssetBase = "";
 const players = new Set<MidiRealPlayer>();
 const soundBanks = new Map<string, Promise<ArrayBuffer>>();
+const soundBankUsers = new Map<string, number>();
+
+function retainSoundBank(url: string): void {
+  soundBankUsers.set(url, (soundBankUsers.get(url) ?? 0) + 1);
+}
+
+function releaseSoundBank(url: string): void {
+  const users = (soundBankUsers.get(url) ?? 1) - 1;
+  if (users > 0) {
+    soundBankUsers.set(url, users);
+  } else {
+    soundBankUsers.delete(url);
+    soundBanks.delete(url);
+  }
+}
 
 export function setDefaultAssetBase(base: string): void {
   defaultAssetBase = base;
@@ -110,6 +125,7 @@ export function mount(target: HTMLElement, options: MountOptions): MidiRealPlaye
           : "GeneralUser GS"),
     custom: false
   };
+  retainSoundBank(defaultSoundFont.url);
   const fileName =
     options.fileName ??
     (typeof options.src === "string" ? fileNameOf(options.src) : "sequence.mid");
@@ -194,9 +210,11 @@ export function mount(target: HTMLElement, options: MountOptions): MidiRealPlaye
       return;
     }
     if (customSoundFontUrl) {
+      releaseSoundBank(customSoundFontUrl);
       URL.revokeObjectURL(customSoundFontUrl);
     }
     customSoundFontUrl = URL.createObjectURL(file);
+    retainSoundBank(customSoundFontUrl);
     player.setSoundFont({ url: customSoundFontUrl, label: file.name, custom: true });
   });
 
@@ -210,13 +228,18 @@ export function mount(target: HTMLElement, options: MountOptions): MidiRealPlaye
   const onSystemThemeChange = () => player.redraw();
   systemTheme.addEventListener("change", onSystemThemeChange);
 
+  let disposed = false;
   const destroy = player.destroy;
   player.destroy = () => {
+    if (disposed) return;
+    disposed = true;
+    releaseSoundBank(defaultSoundFont.url);
     themeObserver.disconnect();
     systemTheme.removeEventListener("change", onSystemThemeChange);
     players.delete(player);
     destroy();
     if (customSoundFontUrl) {
+      releaseSoundBank(customSoundFontUrl);
       URL.revokeObjectURL(customSoundFontUrl);
     }
     shadow.innerHTML = "";
@@ -273,7 +296,9 @@ async function fetchSoundBank(url: string): Promise<ArrayBuffer> {
       return response.arrayBuffer();
     });
     soundBanks.set(url, pending);
-    pending.catch(() => soundBanks.delete(url));
+    pending.catch(() => {
+      if (soundBanks.get(url) === pending) soundBanks.delete(url);
+    });
   }
   // The synthesizer takes ownership of the buffer it receives, so hand out copies.
   return (await pending).slice(0);
@@ -443,6 +468,7 @@ export class MidiRealPlayerElement extends HTMLElement {
   }
 
   #remount(): void {
+    if (!this.isConnected) return;
     this.#player?.destroy();
     this.#player = undefined;
     const src = this.getAttribute("src");

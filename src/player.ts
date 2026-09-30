@@ -1,3 +1,4 @@
+import { idleAudioEngines } from "./idle-audio-engines";
 import {
   Sequencer,
   WorkletSynthesizer,
@@ -236,6 +237,42 @@ let pianoRollRowHeight =
   savedViewerState.pianoRollRowHeight ?? DEFAULT_PIANO_ROLL_ROW_HEIGHT;
 let exportingAudio = false;
 let destroyed = false;
+let engineGeneration = 0;
+let playRequest = 0;
+let startingPlayback = 0;
+let engineLoading = false;
+let engineLoadQueue = Promise.resolve(false);
+const pendingSequenceLoads = new Set<() => void>();
+const idleEngineKey = {};
+
+function releaseEngine(): void {
+  idleAudioEngines.cancel(idleEngineKey);
+  for (const resolve of pendingSequenceLoads) resolve();
+  pendingSequenceLoads.clear();
+  for (const track of audioTracks) {
+    stopAudioSource(track);
+    track.output?.disconnect();
+    track.output = undefined;
+  }
+  sequencer?.pause();
+  synthesizer?.destroy();
+  const context = audioContext;
+  sequencer = undefined;
+  synthesizer = undefined;
+  audioContext = undefined;
+  loadedSoundBank = undefined;
+  if (!engineLoading) soundFontLoadPromise = undefined;
+  playback.engineSeekPending = true;
+  if (context && context.state !== "closed") void context.close().catch(() => {});
+  if (!destroyed && soundFontState === "ready") setSoundFontState("missing", "");
+}
+
+function retireIdleEngine(): void {
+  if (!destroyed && audioContext && !playback.playing && !playback.rebuilding &&
+      !exportingAudio && !engineLoading && startingPlayback === 0) {
+    idleAudioEngines.retire(idleEngineKey, releaseEngine);
+  }
+}
 let canvasLabelSize = "10px";
 const disposers: Array<() => void> = [];
 const audioTracks: AudioTrackModel[] = (config.audioTracks ?? []).map(
@@ -295,6 +332,7 @@ async function initialize(): Promise<void> {
     } else {
       binary = midiSource;
     }
+    if (destroyed) return;
     midiDocument = parseCanonicalMidi(binary.slice(0), fileName);
     createTrackModels();
     if (tracks.length === 0) {
@@ -321,9 +359,9 @@ async function initialize(): Promise<void> {
       );
       window.setTimeout(hideStatus, 3600);
     }
-    animationFrame = requestAnimationFrame(updateFrame);
+
   } catch (error) {
-    renderError(error);
+    if (!destroyed) renderError(error);
   }
 }
 
@@ -923,34 +961,52 @@ function applyTrackAudibilityChange(
   }
 }
 
-async function loadSoundFont(uri: string, label: string): Promise<boolean> {
+function loadSoundFont(uri: string, label: string): Promise<boolean> {
+  const generation = ++engineGeneration;
+  idleAudioEngines.cancel(idleEngineKey);
+  engineLoading = true;
+  setSoundFontState("loading", `Loading ${label}…`);
+  const pending = engineLoadQueue.then(async () => {
+    if (destroyed || generation !== engineGeneration) return false;
+    return buildSoundFontEngine(uri, label, generation);
+  });
+  engineLoadQueue = pending;
+  void pending.finally(() => {
+    if (generation === engineGeneration) {
+      engineLoading = false;
+      retireIdleEngine();
+    }
+  });
+  return pending;
+}
+
+async function buildSoundFontEngine(uri: string, label: string, generation: number): Promise<boolean> {
+  const stale = () => destroyed || generation !== engineGeneration;
   setSoundFontState("loading", `Loading ${label}…`);
 
   try {
     const soundBank = host.fetchSoundBank
       ? await host.fetchSoundBank(uri)
       : await fetchArrayBuffer(uri, label);
-    if (destroyed) {
-      return false;
-    }
-    loadedSoundBank = soundBank.slice(0);
+    if (stale()) return false;
 
     const previousEngineTime =
       playback.playing && sequencer && !sequencer.paused
         ? sequencer.currentHighResolutionTime
         : undefined;
     playback.requestPause(previousEngineTime, midiDocument.duration);
-    sequencer?.pause();
-    synthesizer?.stopAll(true);
-    synthesizer?.destroy();
-    await audioContext?.close();
+    releaseEngine();
+    loadedSoundBank = soundBank.slice(0);
 
     audioContext = new AudioContext();
     await audioContext.audioWorklet.addModule(workletUri);
+    if (stale()) { releaseEngine(); return false; }
     synthesizer = new WorkletSynthesizer(audioContext);
     synthesizer.connect(audioContext.destination);
     await synthesizer.isReady;
+    if (stale()) { releaseEngine(); return false; }
     await synthesizer.soundBankManager.addSoundBank(soundBank, "main");
+    if (stale()) { releaseEngine(); return false; }
     sequencer = new Sequencer(synthesizer, {
       skipToFirstNoteOn: false,
       initialPlaybackRate: 1
@@ -965,6 +1021,8 @@ async function loadSoundFont(uri: string, label: string): Promise<boolean> {
         midiDocument.duration
       );
       playback.finish();
+      syncAudioTracks();
+      retireIdleEngine();
       updateTransportButtons();
       updateReadouts();
     });
@@ -981,6 +1039,7 @@ async function loadSoundFont(uri: string, label: string): Promise<boolean> {
       }
     );
     await rebuildSequence(false);
+    if (stale()) { releaseEngine(); return false; }
     refreshResolvedPresets();
     applyAllTrackGainStates();
     setSoundFontState("ready", `${label} is ready.`);
@@ -988,7 +1047,8 @@ async function loadSoundFont(uri: string, label: string): Promise<boolean> {
     window.setTimeout(hideStatus, 1800);
     return true;
   } catch (error) {
-    loadedSoundBank = undefined;
+    releaseEngine();
+    if (stale()) return false;
     const message =
       error instanceof Error ? error.message : "The SoundFont could not be loaded.";
     setSoundFontState(
@@ -1268,13 +1328,16 @@ async function replacePlaybackSequence(): Promise<void> {
 
   await new Promise<void>((resolve) => {
     const eventId = `viewer-rebuild-${Date.now()}-${Math.random()}`;
+    const complete = () => {
+      activeSequencer.eventHandler.removeEvent("songChange", eventId);
+      pendingSequenceLoads.delete(complete);
+      resolve();
+    };
+    pendingSequenceLoads.add(complete);
     activeSequencer.eventHandler.addEvent(
       "songChange",
       eventId,
-      () => {
-        activeSequencer.eventHandler.removeEvent("songChange", eventId);
-        resolve();
-      }
+      complete
     );
     activeSequencer.loadNewSongList([{ binary, fileName }]);
   });
@@ -1283,6 +1346,7 @@ async function replacePlaybackSequence(): Promise<void> {
 }
 
 function beginSequenceRebuild(resumePreviousState = true): void {
+  idleAudioEngines.cancel(idleEngineKey);
   const observedEngineTime =
     resumePreviousState && playback.playing && sequencer && !sequencer.paused
       ? sequencer.currentHighResolutionTime
@@ -1301,6 +1365,7 @@ function beginSequenceRebuild(resumePreviousState = true): void {
 async function finishSequenceRebuild(): Promise<void> {
   if (!playback.completeRebuild()) {
     updateTransportButtons();
+    retireIdleEngine();
     return;
   }
   const activeSequencer = sequencer;
@@ -1363,6 +1428,18 @@ async function togglePlayback(): Promise<void> {
 }
 
 async function startPlayback(): Promise<void> {
+  const request = ++playRequest;
+  startingPlayback++;
+  idleAudioEngines.cancel(idleEngineKey);
+  try {
+    await startPlaybackRequest(request);
+  } finally {
+    startingPlayback--;
+    retireIdleEngine();
+  }
+}
+
+async function startPlaybackRequest(request: number): Promise<void> {
   if (!(await ensureSoundFontReady())) {
     return;
   }
@@ -1371,6 +1448,7 @@ async function startPlayback(): Promise<void> {
   if (!activeSequencer || !activeAudioContext) {
     return;
   }
+  if (destroyed || request !== playRequest) return;
   if (playback.currentTime >= midiDocument.duration - 0.001) {
     seekToStart();
   }
@@ -1397,7 +1475,8 @@ async function startPlayback(): Promise<void> {
 }
 
 async function ensureSoundFontReady(): Promise<boolean> {
-  if (soundFontState === "missing" && soundFontUri && !soundFontLoadPromise) {
+  if (destroyed) return false;
+  if ((soundFontState === "missing" || soundFontState === "error") && soundFontUri && !engineLoading) {
     soundFontLoadPromise = loadSoundFont(soundFontUri, soundFontLabel);
   }
   if (soundFontState === "loading" && soundFontLoadPromise) {
@@ -1428,7 +1507,11 @@ async function requestAudioExport(): Promise<void> {
   if (!host.beginAudioExport) {
     return;
   }
-  if (exportingAudio || !(await ensureSoundFontReady())) {
+  if (exportingAudio || destroyed) return;
+  idleAudioEngines.cancel(idleEngineKey);
+  setExportingAudio(true);
+  if (!(await ensureSoundFontReady()) || destroyed) {
+    setExportingAudio(false);
     return;
   }
   const audibleTrackIds = getAudibleMidiTrackIds();
@@ -1436,6 +1519,7 @@ async function requestAudioExport(): Promise<void> {
     !tracks.some((track) => audibleTrackIds.has(track.id) && track.notes.length > 0) &&
     getAudibleAudioTracks().length === 0
   ) {
+    setExportingAudio(false);
     showStatus("Unmute or solo at least one track before exporting audio.");
     return;
   }
@@ -1556,6 +1640,7 @@ async function renderAndWriteAudioExport(writer: AudioExportWriter): Promise<voi
 
 function setExportingAudio(exporting: boolean): void {
   exportingAudio = exporting;
+  if (!exporting) retireIdleEngine();
   exportButton.disabled = exporting;
   exportButton.setAttribute("aria-busy", String(exporting));
   exportButton.querySelector("span")!.textContent = exporting
@@ -1564,7 +1649,9 @@ function setExportingAudio(exporting: boolean): void {
 }
 
 function pausePlayback(): void {
+  playRequest++;
   if (!playback.playing) {
+    retireIdleEngine();
     return;
   }
   const engineTime =
@@ -1576,14 +1663,18 @@ function pausePlayback(): void {
   synthesizer?.stopAll(false);
   syncAudioTracks();
   updateTransportButtons();
+  retireIdleEngine();
 }
 
 function stop(): void {
+  playRequest++;
   playback.requestPause(undefined, midiDocument.duration);
   sequencer?.pause();
   synthesizer?.stopAll(true);
   seekToStart();
+  syncAudioTracks();
   updateTransportButtons();
+  retireIdleEngine();
 }
 
 function seekToStart(): void {
@@ -1628,6 +1719,8 @@ function chaseActiveNotes(
 }
 
 function updateFrame(): void {
+  animationFrame = 0;
+  if (destroyed) return;
   if (playback.playing && sequencer && !sequencer.paused) {
     playback.updateFromEngine(
       sequencer.currentHighResolutionTime,
@@ -1647,12 +1740,19 @@ function updateFrame(): void {
     renderCanvas();
   }
   syncAudioTracks();
-  animationFrame = requestAnimationFrame(updateFrame);
+  if (playback.playing) animationFrame = requestAnimationFrame(updateFrame);
 }
 
 let reportedPlaying = false;
 
 function updateTransportButtons(): void {
+  if (destroyed) return;
+  if (playback.playing && !animationFrame) {
+    animationFrame = requestAnimationFrame(updateFrame);
+  } else if (!playback.playing && animationFrame) {
+    cancelAnimationFrame(animationFrame);
+    animationFrame = 0;
+  }
   const playing = playback.playing;
   if (playing !== reportedPlaying) {
     reportedPlaying = playing;
@@ -2304,6 +2404,7 @@ function stopAudioSource(track: AudioTrackModel): void {
 async function loadAudioTrack(track: AudioTrackModel): Promise<void> {
   try {
     const bytes = await fetchArrayBuffer(track.url, track.label);
+    if (destroyed) return;
     const decoder = new OfflineAudioContext(2, 1, AUDIO_DECODE_SAMPLE_RATE);
     const buffer = await decoder.decodeAudioData(bytes);
     if (destroyed) {
@@ -2846,6 +2947,8 @@ return {
     }
   },
   setSoundFont: (source: SoundFontSource) => {
+    if (destroyed) return;
+    playRequest++;
     soundFontUri = source.url;
     soundFontLabel = source.label;
     soundFontIsCustom = source.custom;
@@ -2857,17 +2960,22 @@ return {
     void soundFontLoadPromise;
   },
   destroy: () => {
+    if (destroyed) return;
     destroyed = true;
+    engineGeneration++;
+    playRequest++;
+    playback.finish();
+    releaseEngine();
     cancelAnimationFrame(animationFrame);
     for (const track of audioTracks) {
       stopAudioSource(track);
       track.output?.disconnect();
+      track.buffer = undefined;
+      track.peaks = undefined;
     }
     for (const dispose of disposers.splice(0)) {
       dispose();
     }
-    synthesizer?.destroy();
-    void audioContext?.close();
   }
 };
 }
