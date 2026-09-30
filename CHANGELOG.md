@@ -8,8 +8,12 @@
 - Add `redraw()` to the player returned by `mount()`.
 - Give audio tracks cover art: the recording's own waveform on a dark stage lit
   in the track's color, instead of a plain gradient.
-- Phone-width players keep the SoundFont menu (the Follow toggle gives way) and
-  crop instrument artwork to fill each row instead of letterboxing it.
+- Narrow and phone-width players keep every control, including the per-track
+  instrument menu and the SoundFont menu, and shrink them instead of hiding them;
+  on phones the transport takes two lines. Instrument artwork fills each row
+  instead of letterboxing.
+- The track list and canvas stop at their ends instead of rubber-banding or
+  scrolling the page.
 
 ## 0.1.0
 
