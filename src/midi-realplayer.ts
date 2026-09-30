@@ -202,8 +202,18 @@ export function mount(target: HTMLElement, options: MountOptions): MidiRealPlaye
 
   void player.ready.then(() => fitHeightToTracks(target, player.trackCount));
   players.add(player);
+  // The canvas is painted from CSS colors, so repaint it whenever the theme can change:
+  // the host's `theme` attribute or the visitor's system setting.
+  const themeObserver = new MutationObserver(() => player.redraw());
+  themeObserver.observe(target, { attributes: true, attributeFilter: ["theme"] });
+  const systemTheme = matchMedia("(prefers-color-scheme: dark)");
+  const onSystemThemeChange = () => player.redraw();
+  systemTheme.addEventListener("change", onSystemThemeChange);
+
   const destroy = player.destroy;
   player.destroy = () => {
+    themeObserver.disconnect();
+    systemTheme.removeEventListener("change", onSystemThemeChange);
     players.delete(player);
     destroy();
     if (customSoundFontUrl) {

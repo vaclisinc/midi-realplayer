@@ -143,6 +143,8 @@ export type MidiRealPlayer = {
   pause(): void;
   stop(): void;
   seek(seconds: number): void;
+  /** Repaint the canvas, e.g. after the theme changed; colors are read from CSS. */
+  redraw(): void;
   setSoundFont(source: SoundFontSource): void;
   destroy(): void;
 };
@@ -2699,6 +2701,11 @@ return {
   stop: () => {
     if (midiDocument) {
       stop();
+    }
+  },
+  redraw: () => {
+    if (midiDocument && tracks.length > 0 && !destroyed) {
+      renderCanvas();
     }
   },
   seek: (seconds: number) => {

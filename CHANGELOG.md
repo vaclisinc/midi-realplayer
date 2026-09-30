@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.1.1
+
+- Repaint the Tracks and Roll canvas when the theme changes, whether through the
+  `theme` attribute or the visitor's system setting; it used to keep the old colors
+  until the next redraw.
+- Add `redraw()` to the player returned by `mount()`.
+
 ## 0.1.0
 
 First release as a standalone web package, split from the
