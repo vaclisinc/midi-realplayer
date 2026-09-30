@@ -91,9 +91,9 @@
 
   <section class="case" aria-labelledby="case-single">
     <div class="case-head"><h2 id="case-single">One track</h2></div>
-    <p>Press Play to hear the bass line. Switch to Roll to see the notes on a piano keyboard. The player adjusts its height to fit this single part.</p>
-    <pre>&lt;midi-realplayer src="bass.mid"&gt;&lt;/midi-realplayer&gt;</pre>
-    <midi-realplayer src="bass.mid"></midi-realplayer>
+    <p>Press Play to hear the piano part. Switch to Roll to see the notes on a piano keyboard. The player adjusts its height to fit this single part.</p>
+    <pre>&lt;midi-realplayer src="piano.mid"&gt;&lt;/midi-realplayer&gt;</pre>
+    <midi-realplayer src="piano.mid"></midi-realplayer>
   </section>
 
   <section class="case" aria-labelledby="case-multi">
@@ -105,22 +105,20 @@
 
   <section class="case" aria-labelledby="case-stems">
     <div class="case-head"><h2 id="case-stems">MIDI + audio</h2></div>
-    <p>The audio tracks at the top show the original mix and its separated instrument recordings (stems). The MIDI tracks below show each instrument’s notes. Press S on both “Bass stem” and “Bass” to compare them together, then mute either one to listen to the other. They stay synchronized as you play, pause or seek.</p>
+    <p>Each instrument’s recording (stem) sits directly above its MIDI track. Press S on both “Bass stem” and “Bass” to compare them together, then mute either one to listen to the other. They stay synchronized as you play, pause or seek.</p>
     <pre>&lt;midi-realplayer src="muscriptor.mid"&gt;
-  &lt;midi-realplayer-audio src="audio/mix.mp3" label="Mixture"&gt;&lt;/midi-realplayer-audio&gt;
-  &lt;midi-realplayer-audio src="audio/vocals.mp3" label="Vocals stem"&gt;&lt;/midi-realplayer-audio&gt;
-  &lt;midi-realplayer-audio src="audio/piano.mp3" label="Piano stem"&gt;&lt;/midi-realplayer-audio&gt;
-  &lt;midi-realplayer-audio src="audio/guitar.mp3" label="Guitar stem"&gt;&lt;/midi-realplayer-audio&gt;
-  &lt;midi-realplayer-audio src="audio/bass.mp3" label="Bass stem"&gt;&lt;/midi-realplayer-audio&gt;
-  &lt;midi-realplayer-audio src="audio/drums.mp3" label="Drums stem"&gt;&lt;/midi-realplayer-audio&gt;
+  &lt;midi-realplayer-audio src="audio/vocals.mp3" label="Vocals stem" before-midi-track="1"&gt;&lt;/midi-realplayer-audio&gt;
+  &lt;midi-realplayer-audio src="audio/piano.mp3" label="Piano stem" before-midi-track="2"&gt;&lt;/midi-realplayer-audio&gt;
+  &lt;midi-realplayer-audio src="audio/guitar.mp3" label="Guitar stem" before-midi-track="3"&gt;&lt;/midi-realplayer-audio&gt;
+  &lt;midi-realplayer-audio src="audio/bass.mp3" label="Bass stem" before-midi-track="4"&gt;&lt;/midi-realplayer-audio&gt;
+  &lt;midi-realplayer-audio src="audio/drums.mp3" label="Drums stem" before-midi-track="5"&gt;&lt;/midi-realplayer-audio&gt;
 &lt;/midi-realplayer&gt;</pre>
     <midi-realplayer id="stems" src="muscriptor.mid">
-      <midi-realplayer-audio src="audio/mix.mp3" label="Mixture"></midi-realplayer-audio>
-      <midi-realplayer-audio src="audio/vocals.mp3" label="Vocals stem"></midi-realplayer-audio>
-      <midi-realplayer-audio src="audio/piano.mp3" label="Piano stem"></midi-realplayer-audio>
-      <midi-realplayer-audio src="audio/guitar.mp3" label="Guitar stem"></midi-realplayer-audio>
-      <midi-realplayer-audio src="audio/bass.mp3" label="Bass stem"></midi-realplayer-audio>
-      <midi-realplayer-audio src="audio/drums.mp3" label="Drums stem"></midi-realplayer-audio>
+      <midi-realplayer-audio src="audio/vocals.mp3" label="Vocals stem" before-midi-track="1"></midi-realplayer-audio>
+      <midi-realplayer-audio src="audio/piano.mp3" label="Piano stem" before-midi-track="2"></midi-realplayer-audio>
+      <midi-realplayer-audio src="audio/guitar.mp3" label="Guitar stem" before-midi-track="3"></midi-realplayer-audio>
+      <midi-realplayer-audio src="audio/bass.mp3" label="Bass stem" before-midi-track="4"></midi-realplayer-audio>
+      <midi-realplayer-audio src="audio/drums.mp3" label="Drums stem" before-midi-track="5"></midi-realplayer-audio>
     </midi-realplayer>
   </section>
 

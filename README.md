@@ -76,6 +76,11 @@ same version on jsDelivr. To serve them yourself, see
 
 ### Audio tracks
 
+In the repository build (not yet in npm 0.1.1), add `before-midi-track="1"` to an audio child to place it above the first MIDI
+track, `"2"` for the second, and so on. This lets you alternate each recording
+with its MIDI part. In `mount()`, use `beforeMidiTrack` on an audio track.
+Without this option, recordings appear above all MIDI tracks.
+
 ```html
 <midi-realplayer src="song.mid">
   <midi-realplayer-audio src="mix.mp3" label="Mixture"></midi-realplayer-audio>

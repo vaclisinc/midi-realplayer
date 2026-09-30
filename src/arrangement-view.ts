@@ -59,3 +59,17 @@ export function getArrangementNoteRect(
     height: noteHeight
   };
 }
+
+/** Place audio rows before the specified MIDI track (1-based); default above MIDI. */
+export function getArrangementTrackOrder(midiCount: number, audioBefore: readonly (number | undefined)[]): { kind: "audio" | "midi"; index: number }[] {
+  const order: { kind: "audio" | "midi"; index: number }[] = [];
+  const positions = audioBefore.map(value => value !== undefined && Number.isFinite(value)
+    ? Math.max(0, Math.min(midiCount, Math.floor(value) - 1)) : 0);
+  for (let index = 0; index <= midiCount; index++) {
+    positions.forEach((position, audioIndex) => {
+      if (position === index) order.push({ kind: "audio", index: audioIndex });
+    });
+    if (index < midiCount) order.push({ kind: "midi", index });
+  }
+  return order;
+}

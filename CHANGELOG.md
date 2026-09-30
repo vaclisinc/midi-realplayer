@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+- Place audio recordings next to their MIDI parts with `before-midi-track`
+  (or `beforeMidiTrack` in `mount()`), using 1-based MIDI track numbers.
+- The demo pairs each stem with its MIDI track and uses piano for the single-track example.
+
 ## 0.1.1
 
 - Match Roll, Tracks and Fit typography, including weight and capitalization.

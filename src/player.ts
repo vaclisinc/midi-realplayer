@@ -7,6 +7,7 @@ import { BasicMIDI } from "spessasynth_core";
 import {
   getArrangementCanvasHeight,
   getArrangementNoteRect,
+  getArrangementTrackOrder,
   getPianoRollCanvasHeight
 } from "./arrangement-view";
 import {
@@ -109,6 +110,8 @@ export type AudioTrackSource = {
   label: string;
   /** Seconds into the MIDI where the recording starts (negative trims its start). */
   offset?: number;
+  /** Display before this MIDI track (1-based). Omit to display above all MIDI. */
+  beforeMidiTrack?: number;
 };
 
 export type PlayerConfig = {
@@ -160,6 +163,7 @@ type TrackModel = CanonicalTrack & {
 };
 
 type AudioTrackModel = {
+  beforeMidiTrack?: number;
   id: string;
   label: string;
   url: string;
@@ -239,6 +243,7 @@ const audioTracks: AudioTrackModel[] = (config.audioTracks ?? []).map(
     return {
       id: `audio:${index}`,
       label: source.label,
+      beforeMidiTrack: source.beforeMidiTrack,
       url: source.url,
       offset: source.offset ?? 0,
       enabled: true,
@@ -725,14 +730,21 @@ function listen(
   disposers.push(() => target.removeEventListener(type, handler));
 }
 
+function trackLaneOrder() {
+  return getArrangementTrackOrder(tracks.length, audioTracks.map(track => track.beforeMidiTrack));
+}
+
+function trackLaneIndex(kind: "audio" | "midi", index: number): number {
+  return trackLaneOrder().findIndex(lane => lane.kind === kind && lane.index === index);
+}
+
 function renderTrackList(): void {
   const list = requireElement<HTMLDivElement>("#track-list");
   const previousScrollTop = list.scrollTop;
   const anyTrackSoloed = anyTrackSoloedAnywhere();
-  list.innerHTML = audioTracks.map((track, index) =>
-      renderAudioTrackRow(track, index, anyTrackSoloed)
-    ).join("") + tracks
-    .map((track, index) => {
+  list.innerHTML = trackLaneOrder().map(({ kind, index }) => {
+      if (kind === "audio") return renderAudioTrackRow(audioTracks[index]!, index, anyTrackSoloed);
+      const track = tracks[index]!;
       const displayFamily = resolveInstrumentFamily(
         track.instrumentFamily,
         track.isDrums,
@@ -2055,7 +2067,7 @@ function renderArrangementCanvas(
   drawAudioLanes(context, width, headerHeight, border);
   tracks.forEach((track, trackIndex) => {
     const laneY =
-      headerHeight + (audioTracks.length + trackIndex) * arrangementTrackHeight;
+      headerHeight + trackLaneIndex("midi", trackIndex) * arrangementTrackHeight;
     context.fillStyle = track.color;
     context.globalAlpha = audibleTrackIds.has(track.id) ? 0.08 : 0.025;
     context.fillRect(0, laneY, width, arrangementTrackHeight);
@@ -2090,7 +2102,7 @@ function renderArrangementCanvas(
         note,
         trackMinPitch,
         trackMaxPitch,
-        audioTracks.length + trackIndex,
+        trackLaneIndex("midi", trackIndex),
         arrangementTrackHeight,
         headerHeight,
         width,
@@ -2332,7 +2344,7 @@ function drawAudioLanes(
   const audible = new Set(getAudibleAudioTracks());
   const windowDuration = Math.max(0.001, viewEnd - viewStart);
   audioTracks.forEach((track, index) => {
-    const laneY = headerHeight + index * arrangementTrackHeight;
+    const laneY = headerHeight + trackLaneIndex("audio", index) * arrangementTrackHeight;
     const isAudible = audible.has(track);
     context.fillStyle = track.color;
     context.globalAlpha = isAudible ? 0.08 : 0.025;

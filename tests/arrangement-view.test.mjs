@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import {
   getArrangementCanvasHeight,
+  getArrangementTrackOrder,
   getArrangementNoteRect,
   getPianoRollCanvasHeight
 } from "../src/arrangement-view.ts";
@@ -37,4 +38,15 @@ test("arrangement notes use time horizontally and local pitch vertically", () =>
   assert.equal(rect.width, 200);
   assert.ok(rect.y > 108 && rect.y < 188);
   assert.ok(rect.height >= 2);
+});
+
+
+test("audio and MIDI lanes alternate without changing track indices", () => {
+  assert.deepEqual(getArrangementTrackOrder(2, [1, 2]), [
+    {kind:"audio",index:0}, {kind:"midi",index:0},
+    {kind:"audio",index:1}, {kind:"midi",index:1}
+  ]);
+  assert.deepEqual(getArrangementTrackOrder(1, [undefined, 9]), [
+    {kind:"audio",index:0}, {kind:"midi",index:0}, {kind:"audio",index:1}
+  ]);
 });

@@ -395,7 +395,7 @@ export class MidiRealPlayerElement extends HTMLElement {
       childList: true,
       subtree: true,
       attributes: true,
-      attributeFilter: ["src", "label", "offset"]
+      attributeFilter: ["src", "label", "offset", "before-midi-track"]
     });
     if (document.readyState === "loading") {
       // Children are not parsed yet when a classic script upgrades the element early.
@@ -482,7 +482,9 @@ export class MidiRealPlayerElement extends HTMLElement {
         tracks.push({
           url: src,
           label: child.getAttribute("label") ?? fileNameOf(src),
-          offset: parseOffset(child.getAttribute("offset"))
+          offset: parseOffset(child.getAttribute("offset")),
+          beforeMidiTrack: child.hasAttribute("before-midi-track")
+            ? Number(child.getAttribute("before-midi-track")) : undefined
         });
       }
     }
