@@ -5,13 +5,14 @@
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
 
 Designed for music researchers building demo pages and listening tests.
-Present single-track or multi-track MIDI, or play audio and MIDI together in
-sync. Let listeners explore individual parts and listen to MIDI alongside
-recordings, right in the browser.
+Play MIDI and audio in your browser, just like in your DAW.
 
-**[Try the live demo](https://vaclisinc.github.io/midi-realplayer-web/)**
-
-![Five-track MIDI player with modern instrument artwork, notes, and mute, solo and volume controls](docs/player-modern-five-tracks.png)
+<p align="center">
+  <a href="https://vaclisinc.github.io/midi-realplayer/">
+    <img src="docs/player-modern-five-tracks.png" alt="Five-track MIDI player with modern instrument artwork, notes, and mute, solo and volume controls">
+  </a><br>
+  <sub>(Click the image to try the live demo.)</sub>
+</p>
 
 Add these two lines to your page:
 
@@ -24,54 +25,13 @@ Add these two lines to your page:
 No build step is needed. The player includes a default set of instrument sounds,
 so you do not need to supply a SoundFont to get started.
 
-## Many players on one page
+## Features
 
-By default, mounting a player does not create an audio engine. The engine is
-created on first play (or WAV export), and SoundFont downloads are shared between
-players using the same URL. Playback is exclusive by default.
-
-After pause, stop, or the end of a song, the three most recently used idle engines
-are kept ready per library instance, with no time limit. When a fourth engine
-becomes idle, the least recently used idle engine is released. Resuming a retained
-player reuses its engine; resuming an evicted player rebuilds the engine and
-restores the position and mixer settings, which can take longer. Active playback,
-sequence rebuilds, and WAV exports are not evicted and do not count toward the
-three idle engines. Paused players do not run an
-animation loop. Removing a custom element, or calling `destroy()` on a mounted
-player, releases its engine; cached SoundFont bytes are removed when their last
-mounted user is destroyed.
-
-This bounds idle engine retention, not total page memory: MIDI data, DOM/canvas
-content, and decoded audio stems remain per player. `preload` can initialize many
-engines at once, and `no-exclusive` allows multiple active engines. For large
-collections, mount players as needed and destroy those no longer needed. There
-is no fixed guarantee that any set of 100 files will fit in memory.
-
-For a phone smoke test, open `demo/stress.html` from the built demo site over
-HTTPS (desktop testing also works on localhost). It mounts 100 MIDI-only players
-at once and shows live AudioContext counts, distinct players played, and the last
-play request duration. Use Next/Previous to switch, Pause All to check idle
-retention, and Remove All to check teardown. AudioContext counts and the optional
-JS heap reading are diagnostics, not a measurement of total browser memory.
-
-## What you can do
-
-- **Explore the notes.** Use Tracks for an overview of each part, or Roll to see
-  notes on a piano keyboard. Track heights adjust to fit the available space.
-- **Listen to individual parts.** Mute or solo tracks, adjust their volume, and
-  choose a different instrument for each MIDI track.
-- **Compare MIDI with a recording.** Add a full mix or separate instrument
-  recordings (stems). Their waveforms appear above the MIDI, and playback stays
-  synchronized when you pause or seek.
-- **Save what you hear.** Export the current mix as a WAV file, including audio
-  tracks and your mute, solo and volume settings.
-- **Use several examples on one page.** Starting a player pauses the others.
-  All players share the same instrument sound download.
-
-Playback uses [SpessaSynth](https://github.com/spessasus/SpessaSynth) and preserves
-MIDI tempo changes, note velocities, instrument changes, drums and sustain pedal.
-The player supports light and dark themes and keeps its styles separate from
-those of your page.
+- Track and piano-roll views.
+- Mute, solo, volume and instrument controls for each MIDI track.
+- Audio recordings and stems that stay in sync with MIDI.
+- WAV export of the current mix.
+- Light and dark themes.
 
 ## Usage
 
@@ -79,14 +39,6 @@ those of your page.
 
 ```html
 <script type="module" src="https://cdn.jsdelivr.net/npm/midi-realplayer@0.1.3"></script>
-```
-
-The examples use a fixed version so future updates do not change your page.
-If you prefer a classic script tag, use this version; it exposes a
-`MidiRealPlayer` global:
-
-```html
-<script src="https://cdn.jsdelivr.net/npm/midi-realplayer@0.1.3/dist/midi-realplayer.iife.js"></script>
 ```
 
 ### From npm
@@ -106,11 +58,6 @@ same version on jsDelivr. To serve them yourself, see
 
 ### Audio tracks
 
-Add `before-midi-track="1"` to an audio child to place it above the first MIDI
-track, `"2"` for the second, and so on. This lets you alternate each recording
-with its MIDI part. In `mount()`, use `beforeMidiTrack` on an audio track.
-Without this option, recordings appear above all MIDI tracks.
-
 ```html
 <midi-realplayer src="song.mid">
   <midi-realplayer-audio src="mix.mp3" label="Mixture"></midi-realplayer-audio>
@@ -119,13 +66,9 @@ Without this option, recordings appear above all MIDI tracks.
 </midi-realplayer>
 ```
 
-`offset="0.25"` starts the recording 0.25 seconds after the MIDI begins.
-A negative offset skips that many seconds at the start of the recording.
-A single recording can also go in the `audio` attribute of `<midi-realplayer>` (with `audio-label`
-and `audio-offset`).
-
-Audio tracks are loaded into memory before playback. A 30-second stereo clip
-uses about 10 MB, so short excerpts work best when a page has many players.
+`offset="0.25"` delays a recording by 0.25 seconds; a negative value skips its
+beginning. Add `before-midi-track="1"` to place a recording above the first MIDI
+track. Without it, recordings appear above all MIDI tracks.
 
 ## Attributes
 
@@ -144,14 +87,7 @@ uses about 10 MB, so short excerpts work best when a page has many players.
 | `soundfont-menu` | show a SoundFont menu so visitors can load their own bank |
 | `no-exclusive` | keep playing when another player on the page starts |
 
-The player adjusts its height to the number of tracks, between 14 and 44 rem.
-In Tracks view, rows shrink to fit, down to 52 px; if they still cannot fit,
-you can scroll. Moving the row-height slider keeps your chosen height.
-To set the overall player height yourself, use CSS:
-
-```css
-midi-realplayer { height: 24rem; }
-```
+Set the player height with CSS: `midi-realplayer { height: 24rem; }`.
 
 ## JavaScript
 
@@ -190,11 +126,11 @@ is typed as the player element.
 
 ## SoundFonts and assets
 
-A SoundFont supplies the instrument sounds used to play MIDI. The default is
-[GeneralUser GS](https://schristiancollins.com/generaluser.php) by S. Christian Collins, compressed to SF3 (8.4 MB). It downloads on the
-first play and is shared by every player on the page. Use `soundfont` to pick
-another bank, and add `soundfont-menu` if visitors should be able to load their
-own. Each track's instrument menu works with whichever bank is loaded.
+The included [GeneralUser GS](https://schristiancollins.com/generaluser.php)
+SoundFont downloads on first play (8.4 MB). Use `soundfont` to choose another bank.
+Players share the download; starting one pauses the others by default.
+For large collections, mount players as needed and remove them when finished.
+Audio recordings are decoded into memory, so short excerpts work best.
 
 ### Self-hosting
 
@@ -215,18 +151,6 @@ import { setDefaultAssetBase } from "midi-realplayer";
 setDefaultAssetBase("/static/midi-realplayer/");
 ```
 
-## Rendering audio files
-
-Listening tests usually need audio that sounds the same for every listener.
-The repository includes a renderer that uses the same synthesizer as the
-player:
-
-```sh
-git clone https://github.com/vaclisinc/midi-realplayer-web.git
-cd midi-realplayer-web && npm install
-node scripts/render.mjs path/to/bank.sf2 out/ song1.mid song2.mid --seconds 20
-```
-
 ## Browser support
 
 Current Chrome, Edge, Firefox and Safari. Playback uses the Web Audio
@@ -243,23 +167,11 @@ npm run build     # writes dist/
 npx http-server . # then open /demo/
 ```
 
-`npm run make-sf3 -- in.sf2 out.sf3` recompresses a SoundFont; it needs
-`ffmpeg` with libvorbis.
-
-The player started as the webview of the
-[MIDI RealPlayer VS Code extension](https://github.com/vaclisinc/midi-realplayer-vscode).
-
 ## Publishing
 
-GitHub releases publish to npm through `.github/workflows/publish.yml` using
-OIDC. Configure the npm Trusted Publisher for `vaclisinc/midi-realplayer-web`,
-workflow `publish.yml`, no environment name, and allow `npm publish`.
-No npm token is needed.
-
-For a new version, update `package.json`, `package-lock.json` and the changelog,
-then create a GitHub release tagged `v<version>`. The workflow checks that the
-tag matches the package version before testing, building and publishing.
-You can also run the workflow manually for a release tag; it defaults to a dry run.
+GitHub releases tagged `v<version>` publish to npm. Update the package version,
+lockfile and changelog first. The npm Trusted Publisher must point to
+`vaclisinc/midi-realplayer`, workflow `publish.yml`, with no environment name.
 
 ## License
 

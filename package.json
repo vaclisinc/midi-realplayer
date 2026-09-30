@@ -52,11 +52,11 @@
   "sideEffects": true,
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/vaclisinc/midi-realplayer-web.git"
+    "url": "git+https://github.com/vaclisinc/midi-realplayer.git"
   },
-  "homepage": "https://vaclisinc.github.io/midi-realplayer-web/",
+  "homepage": "https://vaclisinc.github.io/midi-realplayer/",
   "bugs": {
-    "url": "https://github.com/vaclisinc/midi-realplayer-web/issues"
+    "url": "https://github.com/vaclisinc/midi-realplayer/issues"
   },
   "author": "Song-Ze (Jimmy) Yu"
 }
