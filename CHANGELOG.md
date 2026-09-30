@@ -2,6 +2,11 @@
 
 ## 0.1.1
 
+- Match Roll, Tracks and Fit typography, including weight and capitalization.
+- Fit all arrangement tracks into the viewport by default, down to 52 px per
+  track; scroll only when they cannot fit. Moving the height slider keeps the
+  chosen height. Automatic player height can grow to 44 rem.
+
 - Repaint the Tracks and Roll canvas when the theme changes, whether through the
   `theme` attribute or the visitor's system setting; it used to keep the old colors
   until the next redraw.

@@ -18,6 +18,7 @@ export type PersistedViewerState = {
   followPlayhead: boolean;
   viewMode: ViewerMode;
   arrangementTrackHeight: number;
+  arrangementTrackHeightManual: boolean;
   pianoRollRowHeight: number;
   tracks: Record<string, PersistedTrackState>;
 };
@@ -85,6 +86,10 @@ export function normalizeViewerState(
       180,
       DEFAULT_ARRANGEMENT_TRACK_HEIGHT
     ),
+    arrangementTrackHeightManual:
+      typeof candidate.arrangementTrackHeightManual === "boolean"
+        ? candidate.arrangementTrackHeightManual
+        : undefined,
     pianoRollRowHeight: clampNumber(
       candidate.pianoRollRowHeight,
       6,

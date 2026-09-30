@@ -114,3 +114,18 @@ test("viewer state preserves boosted track gain up to 200 percent", () => {
   assert.equal(state.tracks?.lead.gain, 1.5);
   assert.equal(state.tracks?.pad.gain, 2);
 });
+
+
+test("automatic track height survives saving other viewer controls", () => {
+  assert.equal(normalizeViewerState({
+    arrangementTrackHeight: 54,
+    arrangementTrackHeightManual: false
+  }).arrangementTrackHeightManual, false);
+  assert.equal(normalizeViewerState({
+    arrangementTrackHeight: 120,
+    arrangementTrackHeightManual: true
+  }).arrangementTrackHeightManual, true);
+  assert.equal(normalizeViewerState({
+    arrangementTrackHeight: 120
+  }).arrangementTrackHeightManual, undefined);
+});

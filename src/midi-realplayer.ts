@@ -224,11 +224,11 @@ export function mount(target: HTMLElement, options: MountOptions): MidiRealPlaye
   return player;
 }
 
-/** Header, one 88 px lane per track and the transport, within 14 to 32 rem. */
+/** Header, one 88 px lane per track and the transport, within 14 to 44 rem. */
 function fitHeightToTracks(target: HTMLElement, trackCount: number): void {
   const rem = parseFloat(getComputedStyle(document.documentElement).fontSize) || 16;
   const content = 48 + Math.max(1, trackCount) * 88 + 56;
-  const height = Math.min(32 * rem, Math.max(14 * rem, content));
+  const height = Math.min(44 * rem, Math.max(14 * rem, content));
   target.style.setProperty("--midi-realplayer-fit-height", `${height}px`);
 }
 

@@ -592,10 +592,9 @@ select:focus-visible {
   width: auto;
   padding: 0 0.625rem;
   color: var(--text-muted);
-  font-size: 0.625rem;
-  font-weight: 650;
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
+  font-weight: inherit;
+  letter-spacing: normal;
+  text-transform: none;
 }
 
 .view-tools .view-mode-button[aria-pressed="true"] {
@@ -655,6 +654,9 @@ select:focus-visible {
   background: transparent;
   cursor: pointer;
   font-size: 0.75rem;
+  font-weight: 400;
+  letter-spacing: normal;
+  text-transform: none;
 }
 
 .view-tools button:last-child {

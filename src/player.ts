@@ -225,6 +225,9 @@ let viewMode: ViewerMode =
 let arrangementTrackHeight =
   savedViewerState.arrangementTrackHeight ??
   DEFAULT_ARRANGEMENT_TRACK_HEIGHT;
+let arrangementTrackHeightManual = savedViewerState.arrangementTrackHeightManual ??
+  (savedViewerState.arrangementTrackHeight !== undefined &&
+    savedViewerState.arrangementTrackHeight !== DEFAULT_ARRANGEMENT_TRACK_HEIGHT);
 let pianoRollRowHeight =
   savedViewerState.pianoRollRowHeight ?? DEFAULT_PIANO_ROLL_ROW_HEIGHT;
 let exportingAudio = false;
@@ -523,6 +526,7 @@ function bindApplication(): void {
   });
   viewHeightSlider.addEventListener("input", () => {
     if (viewMode === "arrangement") {
+      arrangementTrackHeightManual = true;
       arrangementTrackHeight = clamp(
         Number(viewHeightSlider.value),
         52,
@@ -1677,6 +1681,7 @@ function persistWebviewState(): void {
     followPlayhead,
     viewMode,
     arrangementTrackHeight,
+    arrangementTrackHeightManual,
     pianoRollRowHeight,
     tracks: collectViewerTrackState(tracks)
   } satisfies PersistedViewerState;
@@ -1743,6 +1748,16 @@ function updateCanvasSize(): void {
     return;
   }
   if (viewMode === "arrangement") {
+    if (!arrangementTrackHeightManual && canvasScroll.clientHeight > 0) {
+      const count = Math.max(1, tracks.length + audioTracks.length);
+      arrangementTrackHeight = clamp(
+        Math.floor((canvasScroll.clientHeight - getCanvasHeaderHeight()) / count),
+        52,
+        DEFAULT_ARRANGEMENT_TRACK_HEIGHT
+      );
+      app.style.setProperty("--arrangement-track-height", `${arrangementTrackHeight}px`);
+      viewHeightSlider.value = String(arrangementTrackHeight);
+    }
     canvas.style.height = `${getArrangementCanvasHeight(
       tracks.length + audioTracks.length,
       arrangementTrackHeight,
