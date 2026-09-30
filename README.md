@@ -4,10 +4,10 @@
 [![jsDelivr](https://data.jsdelivr.com/v1/package/npm/midi-realplayer/badge)](https://www.jsdelivr.com/package/npm/midi-realplayer)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
 
-Play MIDI files on your website and explore each instrument's part. Switch
-between a track overview and a piano roll, change instruments, or use mute and
-solo to listen to individual parts. You can also add recordings alongside the
-MIDI to compare a transcription with the original audio.
+Designed for music researchers building demo pages and listening tests.
+Present single-track or multi-track MIDI, or play audio and MIDI together in
+sync. Let listeners explore individual parts and compare transcriptions or
+generated music with recordings, right in the browser.
 
 **[Try the live demo](https://vaclisinc.github.io/midi-realplayer-web/)**
 
