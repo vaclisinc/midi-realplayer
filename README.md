@@ -6,12 +6,12 @@
 
 Designed for music researchers building demo pages and listening tests.
 Present single-track or multi-track MIDI, or play audio and MIDI together in
-sync. Let listeners explore individual parts and compare transcriptions or
-generated music with recordings, right in the browser.
+sync. Let listeners explore individual parts and listen to MIDI alongside
+recordings, right in the browser.
 
 **[Try the live demo](https://vaclisinc.github.io/midi-realplayer-web/)**
 
-![Track view showing audio waveforms alongside a MIDI transcription, with mute, solo and volume controls](docs/screenshot.png)
+![Track view showing audio waveforms alongside MIDI notes, with mute, solo and volume controls](docs/screenshot.png)
 
 Add these two lines to your page:
 
@@ -77,7 +77,7 @@ same version on jsDelivr. To serve them yourself, see
 ### Audio tracks
 
 ```html
-<midi-realplayer src="transcription.mid">
+<midi-realplayer src="song.mid">
   <midi-realplayer-audio src="mix.mp3" label="Mixture"></midi-realplayer-audio>
   <midi-realplayer-audio src="vocals.mp3" label="Vocals stem"></midi-realplayer-audio>
   <midi-realplayer-audio src="bass.mp3" label="Bass stem" offset="0.25"></midi-realplayer-audio>

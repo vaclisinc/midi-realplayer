@@ -65,7 +65,6 @@
     .case { padding-block: 2rem; border-top: 1px solid var(--rule); display: grid; gap: .9rem; }
     .case-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: .25rem 1rem; }
     .case h2 { margin: 0; font-size: 1.25rem; font-weight: 600; letter-spacing: -.01em; }
-    .tag { font-size: .72rem; font-weight: 600; letter-spacing: .14em; text-transform: uppercase; color: var(--felt); }
     .case p { margin: 0; max-width: 46rem; color: var(--ink-soft); }
     midi-realplayer { border: 1px solid var(--rule); }
     footer { margin-top: 2rem; padding-top: 1.25rem; border-top: 1px solid var(--rule); font-size: .8125rem; color: var(--muted); }
@@ -81,7 +80,7 @@
       <svg class="icon-sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.42 1.42M17.65 17.65l1.42 1.42M2 12h2M20 12h2M4.93 19.07l1.42-1.42M17.65 6.35l1.42-1.42"/></svg>
     </button>
   </div>
-  <p class="lede">Designed for music researchers building demo pages and listening tests. Present single-track or multi-track MIDI, or play audio and MIDI together in sync. Let listeners explore individual parts and compare transcriptions or generated music with recordings, right in the browser.</p>
+  <p class="lede">Designed for music researchers building demo pages and listening tests. Present single-track or multi-track MIDI, or play audio and MIDI together in sync. Let listeners explore individual parts and listen to MIDI alongside recordings, right in the browser.</p>
   <p class="links">
     <a href="https://github.com/vaclisinc/midi-realplayer-web">GitHub</a>
     <a href="https://www.npmjs.com/package/midi-realplayer">npm</a>
@@ -91,22 +90,22 @@
 &lt;midi-realplayer src="song.mid"&gt;&lt;/midi-realplayer&gt;</pre>
 
   <section class="case" aria-labelledby="case-single">
-    <div class="case-head"><span class="tag">One track</span><h2 id="case-single">A transcribed bass line</h2></div>
+    <div class="case-head"><h2 id="case-single">One track</h2></div>
     <p>Press Play to hear the bass line. Switch to Roll to see the notes on a piano keyboard. The player adjusts its height to fit this single part.</p>
     <pre>&lt;midi-realplayer src="bass.mid"&gt;&lt;/midi-realplayer&gt;</pre>
     <midi-realplayer src="bass.mid"></midi-realplayer>
   </section>
 
   <section class="case" aria-labelledby="case-multi">
-    <div class="case-head"><span class="tag">Many tracks</span><h2 id="case-multi">A five-track transcription</h2></div>
+    <div class="case-head"><h2 id="case-multi">Many tracks</h2></div>
     <p>Listen to all five parts together, or press S on a track to hear it on its own. M mutes a track, and the menu below its name changes the instrument sound. Switch between Tracks and Roll at the top right.</p>
     <pre>&lt;midi-realplayer src="muscriptor.mid"&gt;&lt;/midi-realplayer&gt;</pre>
     <midi-realplayer src="muscriptor.mid"></midi-realplayer>
   </section>
 
   <section class="case" aria-labelledby="case-stems">
-    <div class="case-head"><span class="tag">MIDI + audio</span><h2 id="case-stems">Compare the transcription with the recording</h2></div>
-    <p>The audio tracks at the top show the original mix and its separated instrument recordings (stems). The MIDI tracks below show the transcribed notes. Press S on both “Bass stem” and “Bass” to compare them together, then mute either one to listen to the other. They stay synchronized as you play, pause or seek.</p>
+    <div class="case-head"><h2 id="case-stems">MIDI + audio</h2></div>
+    <p>The audio tracks at the top show the original mix and its separated instrument recordings (stems). The MIDI tracks below show each instrument’s notes. Press S on both “Bass stem” and “Bass” to compare them together, then mute either one to listen to the other. They stay synchronized as you play, pause or seek.</p>
     <pre>&lt;midi-realplayer src="muscriptor.mid"&gt;
   &lt;midi-realplayer-audio src="audio/mix.mp3" label="Mixture"&gt;&lt;/midi-realplayer-audio&gt;
   &lt;midi-realplayer-audio src="audio/vocals.mp3" label="Vocals stem"&gt;&lt;/midi-realplayer-audio&gt;
