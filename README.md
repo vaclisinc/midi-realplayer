@@ -4,55 +4,59 @@
 [![jsDelivr](https://data.jsdelivr.com/v1/package/npm/midi-realplayer/badge)](https://www.jsdelivr.com/package/npm/midi-realplayer)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
 
-A drop-in MIDI player for the web. One tag gives a MIDI file a DAW-style
-track view, a piano roll, a mute/solo mixer, and SoundFont sound. Audio
-recordings, such as the stems a transcription came from, play in step as
-extra tracks.
+Play MIDI files on your website and explore each instrument's part. Switch
+between a track overview and a piano roll, change instruments, or use mute and
+solo to listen to individual parts. You can also add recordings alongside the
+MIDI to compare a transcription with the original audio.
 
-**[Live demo](https://vaclisinc.github.io/midi-realplayer-web/)**
+**[Try the live demo](https://vaclisinc.github.io/midi-realplayer-web/)**
 
-![midi-realplayer with a mix and five stems above their five-track MIDI transcription](docs/screenshot.png)
+![Track view showing audio waveforms alongside a MIDI transcription, with mute, solo and volume controls](docs/screenshot.png)
+
+Add these two lines to your page:
 
 ```html
-<script type="module" src="https://cdn.jsdelivr.net/npm/midi-realplayer"></script>
+<script type="module" src="https://cdn.jsdelivr.net/npm/midi-realplayer@0.1.1"></script>
 
 <midi-realplayer src="song.mid"></midi-realplayer>
 ```
 
-That is the whole setup: no build step, no SoundFont to host. It suits
-transcription and generation demo pages, listening tests, and course pages.
+No build step is needed. The player includes a default set of instrument sounds,
+so you do not need to supply a SoundFont to get started.
 
-## Features
+## What you can do
 
-- **Tracks and Roll views.** Tracks (the default) shows one lane per track;
-  Roll is a piano roll. Single-track and multi-track files use the same
-  interface.
-- **Mixer.** Mute, solo, volume, and a per-track SoundFont instrument menu.
-- **Faithful playback** through [SpessaSynth](https://github.com/spessasus/SpessaSynth):
-  tempo map, velocities, program and bank changes, drums, and sustain pedal.
-- **Audio tracks.** Recordings sit above the MIDI with their waveforms and
-  share the synthesizer's audio clock, so they stay in step through play,
-  pause, seek, and mute or solo changes.
-- **WAV export** of the audible tracks, including the recordings.
-- **Many players per page.** They share one SoundFont download, and starting
-  one pauses the others.
-- **Contained.** The player renders in a shadow root, so page styles and
-  player styles do not leak into each other. Light and dark themes follow the
-  viewer's system setting.
+- **Explore the notes.** Use Tracks for an overview of each part, or Roll to see
+  notes on a piano keyboard. Track heights adjust to fit the available space.
+- **Listen to individual parts.** Mute or solo tracks, adjust their volume, and
+  choose a different instrument for each MIDI track.
+- **Compare MIDI with a recording.** Add a full mix or separate instrument
+  recordings (stems). Their waveforms appear above the MIDI, and playback stays
+  synchronized when you pause or seek.
+- **Save what you hear.** Export the current mix as a WAV file, including audio
+  tracks and your mute, solo and volume settings.
+- **Use several examples on one page.** Starting a player pauses the others.
+  All players share the same instrument sound download.
+
+Playback uses [SpessaSynth](https://github.com/spessasus/SpessaSynth) and preserves
+MIDI tempo changes, note velocities, instrument changes, drums and sustain pedal.
+The player supports light and dark themes and keeps its styles separate from
+those of your page.
 
 ## Usage
 
 ### From a CDN
 
 ```html
-<script type="module" src="https://cdn.jsdelivr.net/npm/midi-realplayer@0.1"></script>
+<script type="module" src="https://cdn.jsdelivr.net/npm/midi-realplayer@0.1.1"></script>
 ```
 
-Pin a version (as above) on pages you want to keep working. A classic script
-tag also works and exposes a `MidiRealPlayer` global:
+The examples use a fixed version so future updates do not change your page.
+If you prefer a classic script tag, use this version; it exposes a
+`MidiRealPlayer` global:
 
 ```html
-<script src="https://cdn.jsdelivr.net/npm/midi-realplayer@0.1/dist/midi-realplayer.iife.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/midi-realplayer@0.1.1/dist/midi-realplayer.iife.js"></script>
 ```
 
 ### From npm
@@ -80,13 +84,13 @@ same version on jsDelivr. To serve them yourself, see
 </midi-realplayer>
 ```
 
-`offset` is the number of seconds into the MIDI where the recording starts;
-a negative value trims the start of the recording. A single recording can
-also go in the `audio` attribute of `<midi-realplayer>` (with `audio-label`
+`offset="0.25"` starts the recording 0.25 seconds after the MIDI begins.
+A negative offset skips that many seconds at the start of the recording.
+A single recording can also go in the `audio` attribute of `<midi-realplayer>` (with `audio-label`
 and `audio-offset`).
 
-Recordings are decoded into memory: about 10 MB per 30 s of stereo audio.
-That is fine for clips and songs, not for hour-long files.
+Audio tracks are loaded into memory before playback. A 30-second stereo clip
+uses about 10 MB, so short excerpts work best when a page has many players.
 
 ## Attributes
 
@@ -105,8 +109,10 @@ That is fine for clips and songs, not for hour-long files.
 | `soundfont-menu` | show a SoundFont menu so visitors can load their own bank |
 | `no-exclusive` | keep playing when another player on the page starts |
 
-The player's height fits its tracks (between 14 and 32 rem). Set a height in
-CSS to override it:
+The player adjusts its height to the number of tracks, between 14 and 44 rem.
+In Tracks view, rows shrink to fit, down to 52 px; if they still cannot fit,
+you can scroll. Moving the row-height slider keeps your chosen height.
+To set the overall player height yourself, use CSS:
 
 ```css
 midi-realplayer { height: 24rem; }
@@ -149,8 +155,8 @@ is typed as the player element.
 
 ## SoundFonts and assets
 
-The default SoundFont is [GeneralUser GS](https://schristiancollins.com/generaluser.php)
-by S. Christian Collins, compressed to SF3 (8.4 MB). It downloads on the
+A SoundFont supplies the instrument sounds used to play MIDI. The default is
+[GeneralUser GS](https://schristiancollins.com/generaluser.php) by S. Christian Collins, compressed to SF3 (8.4 MB). It downloads on the
 first play and is shared by every player on the page. Use `soundfont` to pick
 another bank, and add `soundfont-menu` if visitors should be able to load their
 own. Each track's instrument menu works with whichever bank is loaded.

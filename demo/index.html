@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>midi-realplayer · demo</title>
-  <meta name="description" content="A drop-in MIDI player for the web: DAW-style track view, piano roll, mute/solo mixer, SoundFont playback, and audio stems in sync.">
+  <meta name="description" content="Play MIDI on your website, explore each instrument, and compare the notes with the original recording.">
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600&display=swap">
   <!-- The demo loads the build next to it; on your page use the CDN tag shown below. -->
   <script type="module" src="../dist/midi-realplayer.js"></script>
@@ -81,32 +81,32 @@
       <svg class="icon-sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.42 1.42M17.65 17.65l1.42 1.42M2 12h2M20 12h2M4.93 19.07l1.42-1.42M17.65 6.35l1.42-1.42"/></svg>
     </button>
   </div>
-  <p class="lede">A drop-in MIDI player for the web. One tag gives a MIDI file a DAW-style track view, a piano roll, a mute/solo mixer, and SoundFont sound. Audio recordings, such as the stems a transcription came from, play in step as extra tracks.</p>
+  <p class="lede">Play MIDI files on your website. Explore each instrument’s part, change its sound, or listen to it on its own. Add a recording to compare the notes with the original performance.</p>
   <p class="links">
     <a href="https://github.com/vaclisinc/midi-realplayer-web">GitHub</a>
     <a href="https://www.npmjs.com/package/midi-realplayer">npm</a>
     <a href="https://github.com/vaclisinc/midi-realplayer-web#readme">Documentation</a>
   </p>
-  <pre>&lt;script type="module" src="https://cdn.jsdelivr.net/npm/midi-realplayer"&gt;&lt;/script&gt;
+  <pre>&lt;script type="module" src="https://cdn.jsdelivr.net/npm/midi-realplayer@0.1.1"&gt;&lt;/script&gt;
 &lt;midi-realplayer src="song.mid"&gt;&lt;/midi-realplayer&gt;</pre>
 
   <section class="case" aria-labelledby="case-single">
     <div class="case-head"><span class="tag">One track</span><h2 id="case-single">A transcribed bass line</h2></div>
-    <p>A single track gets the same interface; the player's height fits its tracks.</p>
+    <p>Press Play to hear the bass line. Switch to Roll to see the notes on a piano keyboard. The player adjusts its height to fit this single part.</p>
     <pre>&lt;midi-realplayer src="bass.mid"&gt;&lt;/midi-realplayer&gt;</pre>
     <midi-realplayer src="bass.mid"></midi-realplayer>
   </section>
 
   <section class="case" aria-labelledby="case-multi">
     <div class="case-head"><span class="tag">Many tracks</span><h2 id="case-multi">A five-track transcription</h2></div>
-    <p>Tracks view by default; switch to Roll at the top right. Each track has mute, solo, volume and a SoundFont instrument menu. Space plays and pauses, clicking the canvas seeks, and Ctrl/⌘ + wheel zooms.</p>
+    <p>Listen to all five parts together, or press S on a track to hear it on its own. M mutes a track, and the menu below its name changes the instrument sound. Switch between Tracks and Roll at the top right.</p>
     <pre>&lt;midi-realplayer src="muscriptor.mid"&gt;&lt;/midi-realplayer&gt;</pre>
     <midi-realplayer src="muscriptor.mid"></midi-realplayer>
   </section>
 
   <section class="case" aria-labelledby="case-stems">
-    <div class="case-head"><span class="tag">MIDI + audio</span><h2 id="case-stems">Transcription next to the mix and its stems</h2></div>
-    <p>Recordings sit above the MIDI tracks with their waveforms and share the MIDI's audio clock. Solo "Bass stem" and "Bass" to hear how well the bass was transcribed; mute every MIDI track to hear only the recordings.</p>
+    <div class="case-head"><span class="tag">MIDI + audio</span><h2 id="case-stems">Compare the transcription with the recording</h2></div>
+    <p>The audio tracks at the top show the original mix and its separated instrument recordings (stems). The MIDI tracks below show the transcribed notes. Press S on both “Bass stem” and “Bass” to compare them together, then mute either one to listen to the other. They stay synchronized as you play, pause or seek.</p>
     <pre>&lt;midi-realplayer src="muscriptor.mid"&gt;
   &lt;midi-realplayer-audio src="audio/mix.mp3" label="Mixture"&gt;&lt;/midi-realplayer-audio&gt;
   &lt;midi-realplayer-audio src="audio/vocals.mp3" label="Vocals stem"&gt;&lt;/midi-realplayer-audio&gt;
@@ -125,9 +125,15 @@
     </midi-realplayer>
   </section>
 
+  <section class="case" aria-labelledby="case-controls">
+    <div class="case-head"><h2 id="case-controls">A few useful controls</h2></div>
+    <p>Click anywhere in the notes or waveforms to jump to that point. Use + and − to zoom, and Fit to see the whole clip. The vertical slider changes row height; rows fit automatically until you adjust it yourself.</p>
+    <p>When the player has keyboard focus, Space plays or pauses. You can also zoom with Ctrl/⌘ + the mouse wheel. Export WAV saves the mix with your current mute, solo and volume settings.</p>
+  </section>
+
   <footer>
-    <p>Only one player on a page sounds at a time: starting one pauses the others. The SoundFont (GeneralUser GS) downloads on first play.</p>
-    <p>Example: a 20-second excerpt of "The Lost Mondays, Volume I" by The Georgia Sam Blues Band (<a href="https://archive.org/details/Georgia_Sam_The_Lost_Mondays_v1">Internet Archive</a>, <a href="https://creativecommons.org/licenses/by-nc-sa/2.5/">CC BY-NC-SA 2.5</a>). Stems were separated with BS-RoFormer and each stem transcribed with MuScriptor by <a href="https://github.com/vaclisinc/AMTFlow">AMTFlow</a>; both are model output, not hand annotation.</p>
+    <p>Starting one player pauses the others. The first time you press Play, the player downloads its instrument sounds (GeneralUser GS); later players reuse them.</p>
+    <p>Example: a 20-second excerpt of "The Lost Mondays, Volume I" by The Georgia Sam Blues Band (<a href="https://archive.org/details/Georgia_Sam_The_Lost_Mondays_v1">Internet Archive</a>, <a href="https://creativecommons.org/licenses/by-nc-sa/2.5/">CC BY-NC-SA 2.5</a>). The instrument recordings were separated with BS-RoFormer and converted to MIDI with MuScriptor using <a href="https://github.com/vaclisinc/AMTFlow">AMTFlow</a>. These examples were generated by models and may contain errors.</p>
   </footer>
 </main>
 <script>
